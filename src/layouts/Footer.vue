@@ -131,7 +131,7 @@
               <a
                 href="mailto:info@websdee.com"
                 class="hover:text-white transition duration-300"
-                >{{ $t("contact.email") }}</a
+                >info@websdee.com</a
               >
             </li>
             <li>

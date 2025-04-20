@@ -6,8 +6,8 @@
   >
     <!-- Background image -->
     <div
-      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-      :style="{ backgroundImage: `url(${backgroundImage})` }"
+      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-blue-900"
+      :style="backgroundImageStyle"
       loading="lazy"
     ></div>
 
@@ -40,14 +40,17 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+import backgroundImageSrc from "@/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp";
+
+const props = defineProps({
   title: {
     type: String,
     required: true,
   },
   backgroundImage: {
     type: String,
-    default: "src/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp",
+    default: "",
   },
   minHeight: {
     type: String,
@@ -57,6 +60,14 @@ defineProps({
     type: String,
     default: "",
   },
+});
+
+// Compute background image style with proper fallback
+const backgroundImageStyle = computed(() => {
+  const imageUrl = props.backgroundImage || backgroundImageSrc;
+  return {
+    backgroundImage: `url(${imageUrl})`,
+  };
 });
 
 import { onMounted, onUnmounted } from "vue";
