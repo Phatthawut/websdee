@@ -1,10 +1,114 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="{{ $i18n.locale }}">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/WebsDee-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Vue</title>
+
+    <!-- SEO Meta Tags -->
+    <title v-if="$i18n.locale === 'en'">
+      WebsDee - Affordable Professional Websites 99$ | Fast & Hassle-Free
+    </title>
+    <title v-else>
+      WebsDee - เว็บไซต์มืออาชีพราคาประหยัดเพียง 3,000 บาท |
+      รวดเร็วและไร้ความยุ่งยาก
+    </title>
+
+    <meta
+      v-if="$i18n.locale === 'en'"
+      name="description"
+      content="Get your professional website starting at just $99. Ready in 7 days. Mobile-responsive. SEO-ready. WebsDee delivers affordable web design and development for small businesses."
+    />
+    <meta
+      v-else
+      name="description"
+      content="รับเว็บไซต์มืออาชีพเริ่มต้นเพียง 3,000 บาท พร้อมใช้งานภายใน 7 วัน รองรับการแสดงผลบนมือถือ พร้อม SEO WebsDee ให้บริการออกแบบและพัฒนาเว็บไซต์ราคาประหยัดสำหรับธุรกิจขนาดเล็ก"
+    />
+
+    <meta
+      v-if="$i18n.locale === 'en'"
+      name="keywords"
+      content="affordable websites, web design, professional websites, small business website, responsive design, fast website development"
+    />
+    <meta
+      v-else
+      name="keywords"
+      content="เว็บไซต์ราคาประหยัด 3,000 บาท, ออกแบบเว็บ, เว็บไซต์มืออาชีพ, เว็บไซต์ธุรกิจขนาดเล็ก, ออกแบบเว็บที่รองรับทุกอุปกรณ์, พัฒนาเว็บไซต์รวดเร็ว"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.websdee.com/" />
+    <meta
+      v-if="$i18n.locale === 'en'"
+      property="og:title"
+      content="WebsDee - Affordable Professional Websites"
+    />
+    <meta
+      v-else
+      property="og:title"
+      content="WebsDee - เว็บไซต์มืออาชีพราคาประหยัดเพียง 3,000 บาท"
+    />
+    <meta
+      v-if="$i18n.locale === 'en'"
+      property="og:description"
+      content="Get your professional website starting at just $99. Ready in 7 days. Mobile-responsive. SEO-ready."
+    />
+    <meta
+      v-else
+      property="og:description"
+      content="รับเว็บไซต์มืออาชีพเริ่มต้นเพียง 3,000 บาท พร้อมใช้งานภายใน 7 วัน รองรับการแสดงผลบนมือถือ พร้อม SEO"
+    />
+    <meta
+      property="og:image"
+      content="https://www.websdee.com/WebsDee-logo.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.websdee.com/" />
+    <meta
+      v-if="$i18n.locale === 'en'"
+      property="twitter:title"
+      content="WebsDee - Affordable Professional Websites"
+    />
+    <meta
+      v-else
+      property="twitter:title"
+      content="WebsDee - เว็บไซต์มืออาชีพราคาประหยัดเพียง 3,000 บาท"
+    />
+    <meta
+      v-if="$i18n.locale === 'en'"
+      property="twitter:description"
+      content="Get your professional website starting at just $99. Ready in 7 days. Mobile-responsive. SEO-ready."
+    />
+    <meta
+      v-else
+      property="twitter:description"
+      content="รับเว็บไซต์มืออาชีพเริ่มต้นเพียง 3,000 บาท พร้อมใช้งานภายใน 7 วัน รองรับการแสดงผลบนมือถือ พร้อม SEO"
+    />
+    <meta
+      property="twitter:image"
+      content="https://www.websdee.com/WebsDee-logo.png"
+    />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.websdee.com/" />
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-F4FKY27RL3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-F4FKY27RL3");
+    </script>
   </head>
   <body>
     <div id="app"></div>
