@@ -2,7 +2,7 @@
   <div class="about-container">
     <!-- Header Section -->
     <section
-      class="py-20 text-white bg-cover bg-center bg-blue-900 headerbg header-height lazy-load"
+      class="py-20 text-white bg-cover bg-center bg-blue-900 headerbg header-height"
     >
       <div
         class="container mx-auto px-4 reveal-section h-full flex flex-col justify-center"

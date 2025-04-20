@@ -427,6 +427,8 @@
     }
   },
   "contactForm": {
+    "hero": "Contact Us",
+    "heroDescription": "We’d love to hear from you! Whether you have questions, need support, or want to collaborate, feel free to reach out.",
     "title": "Get in Touch",
     "description": "Have a question or need assistance? Fill out the form below, and our team will get back to you as soon as possible.",
     "name": "Name",

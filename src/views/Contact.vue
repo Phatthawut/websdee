@@ -1,10 +1,23 @@
 <template>
-  <WithBanner
-    title="Contact Us"
-    subtitle="We’d love to hear from you! Whether you have questions, need support, or want to collaborate, feel free to reach out."
-    minHeight="50vh"
-    backgroundImage="src/assets/images/luca-bravo-JqOvq9ypB4w-unsplash.webp"
-  />
+  <!-- Header Section -->
+  <section
+    class="py-20 text-white bg-cover bg-center bg-blue-900 headerbg header-height"
+  >
+    <div
+      class="container mx-auto px-4 reveal-section h-full flex flex-col justify-center"
+    >
+      <h1
+        class="text-4xl md:text-5xl font-bold mb-6 text-center reveal-element"
+      >
+        {{ $t("contactForm.hero") }}
+      </h1>
+      <div class="w-1/2 h-[2px] bg-[#fbc646] mx-auto mb-8 reveal-element"></div>
+      <p class="text-xl max-w-3xl mx-auto text-center reveal-element">
+        {{ $t("contactForm.heroDescription") }}
+      </p>
+    </div>
+  </section>
+
   <div class="contact-container py-16 px-4">
     <section class="reveal-section">
       <div class="max-w-7xl mx-auto">
@@ -112,7 +125,6 @@
 
 <script setup>
 import { ref } from "vue";
-import WithBanner from "@/components/WithBanner.vue";
 
 const form = ref({
   name: "",
@@ -210,6 +222,19 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.headerbg {
+  background-image: linear-gradient(
+      rgba(5, 29, 64, 0.85),
+      rgba(5, 29, 64, 0.45)
+    ),
+    url("@/assets/images/luca-bravo-JqOvq9ypB4w-unsplash.webp");
+}
+
+.header-height {
+  height: 50vh;
+  min-height: 350px; /* Fallback minimum height */
+}
+
 .about-container {
   min-height: 100vh;
 }

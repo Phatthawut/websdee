@@ -5,7 +5,7 @@
     <!-- Background image with parallax effect -->
     <div
       ref="parallaxBg"
-      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(src/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp)] transform scale-110"
+      class="absolute inset-0 w-full h-full bg-blue-900 headerbg transform scale-110"
       style="will-change: transform"
     ></div>
 
@@ -180,6 +180,13 @@ onUnmounted(() => {
 <style scoped>
 .hero-section {
   max-height: 50vh;
+}
+
+.headerbg {
+  background-image: url("@/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 /* Add smooth transition for parallax effect */

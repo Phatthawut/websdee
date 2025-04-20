@@ -1,16 +1,9 @@
 <template>
   <!-- Banner Section -->
   <section
-    class="banner-section relative text-white flex items-center reveal-section"
+    class="banner-section relative text-white flex items-center reveal-section headerbg"
     :style="{ minHeight }"
   >
-    <!-- Background image -->
-    <div
-      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-blue-900"
-      :style="backgroundImageStyle"
-      loading="lazy"
-    ></div>
-
     <!-- Overlay -->
     <div class="absolute inset-0 w-full h-full bg-[#051d40] opacity-85"></div>
 
@@ -40,8 +33,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import backgroundImageSrc from "@/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp";
+import { onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   title: {
@@ -61,16 +53,6 @@ const props = defineProps({
     default: "",
   },
 });
-
-// Compute background image style with proper fallback
-const backgroundImageStyle = computed(() => {
-  const imageUrl = props.backgroundImage || backgroundImageSrc;
-  return {
-    backgroundImage: `url(${imageUrl})`,
-  };
-});
-
-import { onMounted, onUnmounted } from "vue";
 
 // Function to set up reveal animations
 const setupRevealAnimations = () => {
@@ -143,6 +125,18 @@ onUnmounted(() => {
 <style scoped>
 .banner-section {
   width: 100%;
+  background-color: #1e3a8a; /* bg-blue-900 fallback */
+}
+
+.headerbg {
+  background-image: linear-gradient(
+      rgba(5, 29, 64, 0.85),
+      rgba(5, 29, 64, 0.45)
+    ),
+    url("@/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 /* Animation styles */
