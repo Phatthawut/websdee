@@ -6,7 +6,7 @@
       <!-- Logo -->
       <div class="flex-shrink-0 flex items-center">
         <router-link to="/" class="flex items-center">
-          <span class="text-xl font-bold text-blue-700">WebsDee</span>
+          <img src="/WebsDee-logo.png" alt="WebsDee Logo" class="w-35" />
         </router-link>
       </div>
 
