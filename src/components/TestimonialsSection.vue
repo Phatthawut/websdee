@@ -15,9 +15,7 @@
             <span class="ml-2">5.0</span>
           </div>
           <p class="mb-4">
-            "WebsDee delivered exactly what we needed for our business. The
-            website is beautiful, functional, and has already brought in new
-            customers."
+            {{ $t("testimonials.owner1.description") }}
           </p>
           <div class="flex items-center">
             <div
@@ -26,8 +24,12 @@
               JD
             </div>
             <div>
-              <div class="font-medium">John Doe</div>
-              <div class="text-sm text-orange-100">CEO, Example Company</div>
+              <div class="font-medium">
+                {{ $t("testimonials.owner1.name") }}
+              </div>
+              <div class="text-sm text-orange-100">
+                {{ $t("testimonials.owner1.position") }}
+              </div>
             </div>
           </div>
         </div>
@@ -41,20 +43,20 @@
             <span class="ml-2">5.0</span>
           </div>
           <p class="mb-4">
-            "We were impressed by the quick turnaround and attention to detail.
-            Our new website looks professional and has significantly improved
-            our online presence."
+            {{ $t("testimonials.owner2.description") }}
           </p>
           <div class="flex items-center">
             <div
               class="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center mr-3"
             >
-              JS
+              KW
             </div>
             <div>
-              <div class="font-medium">Jane Smith</div>
+              <div class="font-medium">
+                {{ $t("testimonials.owner2.name") }}
+              </div>
               <div class="text-sm text-orange-100">
-                Founder, Another Business
+                {{ $t("testimonials.owner2.position") }}
               </div>
             </div>
           </div>

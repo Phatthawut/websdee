@@ -11,59 +11,51 @@
       </div>
 
       <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center space-x-8">
+      <div class="hidden lg:flex items-center space-x-8">
         <router-link
           to="/"
           class="text-gray-700 hover:text-blue-700 font-medium"
-          >Home</router-link
-        >
-        <router-link
-          to="/page"
-          class="text-gray-700 hover:text-blue-700 font-medium"
-          >Page</router-link
+          >{{ $t("nav.home") }}</router-link
         >
         <router-link
           to="/solutions"
           class="text-gray-700 hover:text-blue-700 font-medium"
-          >Solutions</router-link
+          >{{ $t("nav.solutions") }}</router-link
         >
         <router-link
-          to="/company"
+          to="/about"
           class="text-gray-700 hover:text-blue-700 font-medium"
-          >Company</router-link
+          >{{ $t("nav.about") }}</router-link
         >
         <router-link
-          to="/case-studies"
+          to="/services"
           class="text-gray-700 hover:text-blue-700 font-medium"
-          >Case Studies</router-link
+          >{{ $t("nav.services") }}</router-link
         >
         <router-link
-          to="/blog"
+          to="/contact"
           class="text-gray-700 hover:text-blue-700 font-medium"
-          >Blog</router-link
-        >
-        <router-link
-          to="/faq"
-          class="text-gray-700 hover:text-blue-700 font-medium"
-          >FAQs</router-link
+          >{{ $t("nav.contact") }}</router-link
         >
       </div>
 
       <!-- Contact Info and Button -->
-      <div class="hidden md:flex items-center space-x-4">
-        <a href="tel:+18554007002" class="text-gray-600 hover:text-blue-700">
+      <div class="hidden lg:flex items-center space-x-4">
+        <LanguageSwitcher class="mr-4" />
+        <a href="tel:+66834755212" class="text-gray-600 hover:text-blue-700">
           <span class="font-medium">083 475 5212</span>
         </a>
         <router-link
           to="/contact"
           class="bg-blue-700 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 transition duration-300"
         >
-          Contact
+          {{ $t("nav.contact") }}
         </router-link>
       </div>
 
       <!-- Mobile menu button -->
-      <div class="md:hidden flex items-center">
+      <div class="lg:hidden flex items-center">
+        <LanguageSwitcher class="mr-4" />
         <button
           @click="toggleMenu"
           type="button"
@@ -88,47 +80,32 @@
     </nav>
 
     <!-- Mobile Menu -->
-    <div v-if="isMenuOpen" class="md:hidden bg-white pt-2 pb-4 px-4">
+    <div v-if="isMenuOpen" class="lg:hidden bg-white pt-2 pb-4 px-4">
       <div class="flex flex-col space-y-3">
         <router-link
           to="/"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Home</router-link
-        >
-        <router-link
-          to="/page"
-          class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Page</router-link
+          >{{ $t("nav.home") }}</router-link
         >
         <router-link
           to="/solutions"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Solutions</router-link
+          >{{ $t("nav.solutions") }}</router-link
         >
         <router-link
-          to="/company"
+          to="/about"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Company</router-link
+          >{{ $t("nav.about") }}</router-link
         >
         <router-link
-          to="/case-studies"
+          to="/services"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Case Studies</router-link
-        >
-        <router-link
-          to="/blog"
-          class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >Blog</router-link
-        >
-        <router-link
-          to="/faq"
-          class="text-gray-700 hover:text-blue-700 font-medium py-2"
-          >FAQs</router-link
+          >{{ $t("nav.services") }}</router-link
         >
         <router-link
           to="/contact"
           class="bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-center"
-          >Contact</router-link
+          >{{ $t("nav.contact") }}</router-link
         >
       </div>
     </div>
@@ -137,6 +114,7 @@
 
 <script setup>
 import { ref } from "vue";
+import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 
 const isMenuOpen = ref(false);
 

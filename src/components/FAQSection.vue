@@ -1,89 +1,37 @@
 <template>
-  <section class="faq-section py-16 px-4 bg-white">
+  <section id="faq" class="faq-section py-16 px-4 bg-white">
     <div class="max-w-7xl mx-auto">
-      <h2
-        class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center"
-      >
-        Ask us if you have<br />doubts or questions
-      </h2>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4 text-[#051d40]">
+          {{ $t("faq.title") }}
+        </h2>
+        <div class="w-24 h-1 bg-[#fbc646] mx-auto mb-6"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          {{ $t("faq.subtitle") }}
+        </p>
+      </div>
 
-      <div class="grid grid-cols-1 gap-8">
-        <div class="border-b border-gray-200 pb-4 mb-4 mx-auto w-[80%]">
+      <div class="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
+        <div
+          v-for="(item, key) in faqItems"
+          :key="key"
+          class="border-b border-gray-200 pb-6"
+        >
           <Disclosure v-slot="{ open }">
-            <DisclosureButton class="flex justify-between items-center w-full">
-              <span class="text-xl font-semibold mb-2">
-                What is included in the Basic plan?
-              </span>
+            <DisclosureButton
+              class="flex justify-between items-center w-full text-left"
+            >
+              <span
+                class="text-xl font-semibold mb-2"
+                v-html="item.question"
+              ></span>
               <ChevronRightIcon
-                class="w-5 h-5"
+                class="w-5 h-5 text-[#051d40] transition-transform duration-200"
                 :class="{ 'rotate-90': open }"
               />
             </DisclosureButton>
-            <DisclosurePanel>
-              <p class="text-gray-600">
-                Our Basic plan includes a one-page responsive website, contact
-                form integration, and mobile-friendly design, perfect for
-                individuals or small businesses just starting out.
-              </p>
-            </DisclosurePanel>
-          </Disclosure>
-        </div>
-        <div class="border-b border-gray-200 pb-4 mb-4 mx-auto w-[80%]">
-          <Disclosure v-slot="{ open }">
-            <DisclosureButton class="flex justify-between items-center w-full">
-              <h3 class="text-xl font-semibold mb-2">
-                Do I need to find my own hosting?
-              </h3>
-              <ChevronRightIcon
-                class="w-5 h-5"
-                :class="{ 'rotate-90': open }"
-              />
-            </DisclosureButton>
-            <DisclosurePanel>
-              <p class="text-gray-600">
-                No, all our plans include reliable hosting for your website. We
-                handle all the technical aspects so you can focus on your
-                business.
-              </p>
-            </DisclosurePanel>
-          </Disclosure>
-        </div>
-
-        <div class="border-b border-gray-200 pb-4 mb-4 mx-auto w-[80%]">
-          <Disclosure v-slot="{ open }">
-            <DisclosureButton class="flex justify-between items-center w-full">
-              <h3 class="text-xl font-semibold mb-2">How does pricing work?</h3>
-              <ChevronRightIcon
-                class="w-5 h-5"
-                :class="{ 'rotate-90': open }"
-              />
-            </DisclosureButton>
-            <DisclosurePanel>
-              <p class="text-gray-600">
-                We offer transparent pricing with no hidden fees. You can choose
-                from our three plans or contact us for a custom solution
-                tailored to your specific needs.
-              </p>
-            </DisclosurePanel>
-          </Disclosure>
-        </div>
-        <div class="border-b border-gray-200 pb-4 mb-4 mx-auto w-[80%]">
-          <Disclosure v-slot="{ open }">
-            <DisclosureButton class="flex justify-between items-center w-full">
-              <h3 class="text-xl font-semibold mb-2">
-                Can I get help with domain registration?
-              </h3>
-              <ChevronRightIcon
-                class="w-5 h-5"
-                :class="{ 'rotate-90': open }"
-              />
-            </DisclosureButton>
-            <DisclosurePanel>
-              <p class="text-gray-600">
-                Yes, we can help you find and register the perfect domain name
-                for your business. This service is included in our Pro and
-                Business plans.
-              </p>
+            <DisclosurePanel class="mt-2">
+              <p class="text-gray-600" v-html="item.answer"></p>
             </DisclosurePanel>
           </Disclosure>
         </div>
@@ -95,4 +43,13 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { locale, messages } = useI18n();
+
+const faqItems = computed(() => {
+  const items = messages.value[locale.value]?.faq?.items;
+  return items || {};
+});
 </script>

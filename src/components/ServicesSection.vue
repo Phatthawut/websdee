@@ -1,135 +1,158 @@
 <template>
-  <section id="services" class="py-16 bg-gray-50 font-prompt">
+  <section id="services" class="py-16 bg-white">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-4 text-[#051d40]">บริการของเรา</h2>
-        <div class="w-24 h-1 bg-[#fbc646] mx-auto mb-6"></div>
+        <h2 class="text-3xl font-bold mb-4">{{ $t("services.title") }}</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          {{ $t("services.subtitle") }}
+        </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- เว็บไซต์หน้าเดียว -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Service 1 -->
         <div
-          class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+          class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col h-full items-center"
         >
-          <div
-            class="w-14 h-14 bg-[#051d40] text-[#fbc646] rounded-lg flex items-center justify-center mb-4"
-          >
+          <div class="flex items-center mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
+              class="h-8 w-8 text-[#fbc646]"
+              viewBox="0 0 20 20"
               fill="currentColor"
-              class="w-8 h-8"
             >
               <path
                 fill-rule="evenodd"
-                d="M7.5 5.25a3 3 0 013-3h3a3 3 0 013 3v.205c.933.085 1.857.197 2.774.334 1.454.218 2.476 1.483 2.476 2.917v3.033c0 1.211-.734 2.352-1.936 2.752A24.726 24.726 0 0112 15.75c-2.73 0-5.357-.442-7.814-1.259-1.202-.4-1.936-1.541-1.936-2.752V8.706c0-1.434 1.022-2.7 2.476-2.917A48.814 48.814 0 017.5 5.455V5.25zm7.5 0v.09a49.488 49.488 0 00-6 0v-.09a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5zm-3 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                clip-rule="evenodd"
-              />
-              <path
-                d="M3 18.4v-2.796a4.3 4.3 0 00.713.31A26.226 26.226 0 0012 17.25c2.892 0 5.68-.468 8.287-1.335.252-.084.49-.189.713-.311V18.4c0 1.452-1.047 2.728-2.523 2.923-2.12.282-4.282.427-6.477.427a49.19 49.19 0 01-6.477-.427C4.047 21.128 3 19.852 3 18.4z"
-              />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-2 text-[#051d40]">
-            เว็บไซต์หน้าเดียว
-          </h3>
-          <p class="text-gray-600">
-            เหมาะสำหรับคนเริ่มต้น หรือใช้เป็น Landing Page
-          </p>
-        </div>
-
-        <!-- เว็บไซต์ขายของ -->
-        <div
-          class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          <div
-            class="w-14 h-14 bg-[#051d40] text-[#fbc646] rounded-lg flex items-center justify-center mb-4"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-8 h-8"
-            >
-              <path
-                d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
-              />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-2 text-[#051d40]">
-            เว็บไซต์ขายของ (WooCommerce)
-          </h3>
-          <p class="text-gray-600">
-            เปิดร้านค้าออนไลน์ได้อย่างมืออาชีพ รองรับระบบตะกร้า & ชำระเงิน
-          </p>
-        </div>
-
-        <!-- บริการปรับ SEO -->
-        <div
-          class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          <div
-            class="w-14 h-14 bg-[#051d40] text-[#fbc646] rounded-lg flex items-center justify-center mb-4"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-8 h-8"
-            >
-              <path
-                d="M8.25 10.875a2.625 2.625 0 115.25 0 2.625 2.625 0 01-5.25 0z"
-              />
-              <path
-                fill-rule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.125 4.5a4.125 4.125 0 102.338 7.524l2.007 2.006a.75.75 0 101.06-1.06l-2.006-2.007a4.125 4.125 0 00-3.399-6.463z"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
                 clip-rule="evenodd"
               />
             </svg>
+            <h3 class="text-xl font-bold ml-3">
+              {{ $t("services.items.web.title") }}
+            </h3>
           </div>
-          <h3 class="text-xl font-semibold mb-2 text-[#051d40]">
-            บริการปรับ SEO เบื้องต้น
-          </h3>
-          <p class="text-gray-600">
-            ช่วยให้เว็บไซต์ของคุณติดอันดับบน Google ได้ง่ายขึ้น
+          <p class="text-gray-600 mb-4">
+            {{ $t("services.items.web.description") }}
           </p>
+          <div class="mt-auto">
+            <router-link
+              to="/services"
+              class="inline-block bg-[#fbc646] text-[#051d40] font-semibold px-6 py-2 rounded hover:bg-yellow-500 transition duration-300"
+            >
+              {{ $t("services.learnMore") }}
+            </router-link>
+          </div>
         </div>
 
-        <!-- ดูแลเว็บไซต์รายเดือน -->
+        <!-- Service 2 -->
         <div
-          class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+          class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col h-full items-center"
         >
-          <div
-            class="w-14 h-14 bg-[#051d40] text-[#fbc646] rounded-lg flex items-center justify-center mb-4"
-          >
+          <div class="flex items-center mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
+              class="h-8 w-8 text-[#fbc646]"
+              viewBox="0 0 20 20"
               fill="currentColor"
-              class="w-8 h-8"
+            >
+              <path
+                d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+              />
+              <path
+                d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"
+              />
+            </svg>
+            <h3 class="text-xl font-bold ml-3">
+              {{ $t("services.items.ecommerce.title") }}
+            </h3>
+          </div>
+          <p class="text-gray-600 mb-4">
+            {{ $t("services.items.ecommerce.description") }}
+          </p>
+          <div class="mt-auto">
+            <router-link
+              to="/services"
+              class="inline-block bg-[#fbc646] text-[#051d40] font-semibold px-6 py-2 rounded hover:bg-yellow-500 transition duration-300"
+            >
+              {{ $t("services.learnMore") }}
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Service 3 -->
+        <div
+          class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col h-full items-center"
+        >
+          <div class="flex items-center mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-[#fbc646]"
+              viewBox="0 0 20 20"
+              fill="currentColor"
             >
               <path
                 fill-rule="evenodd"
-                d="M12 6.75a5.25 5.25 0 016.775-5.025.75.75 0 01.313 1.248l-3.32 3.319c.063.475.276.934.641 1.299.365.365.824.578 1.3.64l3.318-3.319a.75.75 0 011.248.313 5.25 5.25 0 01-5.472 6.756c-1.018-.086-1.87.1-2.309.634L7.344 21.3A3.298 3.298 0 112.7 16.657l8.684-7.151c.533-.44.72-1.291.634-2.309A5.342 5.342 0 0112 6.75zM4.117 19.125a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008z"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                 clip-rule="evenodd"
               />
             </svg>
+            <h3 class="text-xl font-bold ml-3">
+              {{ $t("services.items.seo.title") }}
+            </h3>
           </div>
-          <h3 class="text-xl font-semibold mb-2 text-[#051d40]">
-            ดูแลเว็บไซต์รายเดือน
-          </h3>
-          <p class="text-gray-600">
-            ให้เราช่วยดูแลให้เว็บไซต์ของคุณทำงานได้ดีอยู่เสมอ
+          <p class="text-gray-600 mb-4">
+            {{ $t("services.items.seo.description") }}
           </p>
+          <div class="mt-auto">
+            <router-link
+              to="/services"
+              class="inline-block bg-[#fbc646] text-[#051d40] font-semibold px-6 py-2 rounded hover:bg-yellow-500 transition duration-300"
+            >
+              {{ $t("services.learnMore") }}
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Service 4 -->
+        <div
+          class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col h-full items-center"
+        >
+          <div class="flex items-center mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-[#fbc646]"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <h3 class="text-xl font-bold ml-3">
+              {{ $t("services.items.maintenance.title") }}
+            </h3>
+          </div>
+          <p class="text-gray-600 mb-4">
+            {{ $t("services.items.maintenance.description") }}
+          </p>
+          <div class="mt-auto">
+            <router-link
+              to="/services"
+              class="inline-block bg-[#fbc646] text-[#051d40] font-semibold px-6 py-2 rounded hover:bg-yellow-500 transition duration-300"
+            >
+              {{ $t("services.learnMore") }}
+            </router-link>
+          </div>
         </div>
       </div>
 
       <div class="text-center mt-12">
         <router-link
-          to="/packages"
-          class="inline-block bg-[#051d40] text-white px-6 py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
+          to="/services"
+          class="inline-block bg-[#051d40] text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-900 transition duration-300"
         >
-          ดูบริการทั้งหมดของเรา
+          {{ $t("services.viewAllServices") }}
         </router-link>
       </div>
     </div>
@@ -137,9 +160,9 @@
 </template>
 
 <script setup>
-// No props or logic needed for now
+// No props or logic needed at this moment
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap");
+/* Styles if needed */
 </style>

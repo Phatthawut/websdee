@@ -1,6 +1,48 @@
 @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-Prompt: "Prompt", sans-serif;
+  --font-Noto: "Noto Sans", sans-serif;
+}
+
+/* Default font for English */
+:root {
+  font-family: "Noto Sans", sans-serif;
+}
+
+/* Styles for Thai language */
+.lang-th {
+  font-family: "Prompt", sans-serif;
+  line-height: 1.8;
+}
+
+/* Adjust line height for Thai text */
+.lang-th h1,
+.lang-th h2,
+.lang-th h3 {
+  line-height: 1.4;
+}
+
+.lang-th p {
+  line-height: 1.8;
+}
+
+/* General app styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
 }

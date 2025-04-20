@@ -35,48 +35,43 @@
 
         <!-- Quick Links -->
         <div>
-          <h3 class="text-lg font-semibold text-white mb-4">Company</h3>
+          <h3 class="text-lg font-semibold text-white mb-4">
+            {{ $t("nav.about") }}
+          </h3>
           <ul class="space-y-2">
+            <li>
+              <router-link
+                to="/"
+                class="hover:text-white transition duration-300"
+                >{{ $t("nav.home") }}</router-link
+              >
+            </li>
             <li>
               <router-link
                 to="/about"
                 class="hover:text-white transition duration-300"
-                >About Us</router-link
+                >{{ $t("nav.about") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/page"
+                to="/solutions"
                 class="hover:text-white transition duration-300"
-                >Page</router-link
+                >{{ $t("nav.solutions") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/careers"
+                to="/services"
                 class="hover:text-white transition duration-300"
-                >Careers</router-link
+                >{{ $t("nav.services") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/partners"
+                to="/contact"
                 class="hover:text-white transition duration-300"
-                >Partners</router-link
-              >
-            </li>
-            <li>
-              <router-link
-                to="/blog"
-                class="hover:text-white transition duration-300"
-                >Blog</router-link
-              >
-            </li>
-            <li>
-              <router-link
-                to="/case-studies"
-                class="hover:text-white transition duration-300"
-                >Case Studies</router-link
+                >{{ $t("nav.contact") }}</router-link
               >
             </li>
           </ul>
@@ -84,41 +79,36 @@
 
         <!-- Services -->
         <div>
-          <h3 class="text-lg font-semibold text-white mb-4">Services</h3>
+          <h3 class="text-lg font-semibold text-white mb-4">
+            {{ $t("services.title") }}
+          </h3>
           <ul class="space-y-2">
             <li>
               <router-link
-                to="/managed-it"
+                to="/services"
                 class="hover:text-white transition duration-300"
-                >Managed IT Services</router-link
+                >{{ $t("services.items.web.title") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/cloud"
+                to="/services"
                 class="hover:text-white transition duration-300"
-                >Cloud Computing</router-link
+                >{{ $t("services.items.ecommerce.title") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/cybersecurity"
+                to="/services"
                 class="hover:text-white transition duration-300"
-                >Cybersecurity Solutions</router-link
+                >{{ $t("services.items.seo.title") }}</router-link
               >
             </li>
             <li>
               <router-link
-                to="/consulting"
+                to="/services"
                 class="hover:text-white transition duration-300"
-                >IT Consulting</router-link
-              >
-            </li>
-            <li>
-              <router-link
-                to="/software"
-                class="hover:text-white transition duration-300"
-                >Software Development</router-link
+                >{{ $t("services.items.maintenance.title") }}</router-link
               >
             </li>
           </ul>
@@ -126,8 +116,31 @@
 
         <!-- Contact & Legal -->
         <div>
-          <h3 class="text-lg font-semibold text-white mb-4">Legal</h3>
+          <h3 class="text-lg font-semibold text-white mb-4">
+            {{ $t("contact.title") }}
+          </h3>
           <ul class="space-y-2">
+            <li>
+              <router-link
+                to="/contact"
+                class="hover:text-white transition duration-300"
+                >{{ $t("nav.contact") }}</router-link
+              >
+            </li>
+            <li>
+              <a
+                href="mailto:info@websdee.com"
+                class="hover:text-white transition duration-300"
+                >{{ $t("contact.email") }}</a
+              >
+            </li>
+            <li>
+              <a
+                href="tel:0834755212"
+                class="hover:text-white transition duration-300"
+                >083 475 5212</a
+              >
+            </li>
             <li>
               <router-link
                 to="/privacy-policy"
@@ -142,27 +155,6 @@
                 >Terms of Use</router-link
               >
             </li>
-            <li>
-              <router-link
-                to="/cookies"
-                class="hover:text-white transition duration-300"
-                >Cookie Policy</router-link
-              >
-            </li>
-            <li>
-              <router-link
-                to="/sitemap"
-                class="hover:text-white transition duration-300"
-                >Sitemap</router-link
-              >
-            </li>
-            <li>
-              <router-link
-                to="/contact"
-                class="hover:text-white transition duration-300"
-                >Contact Us</router-link
-              >
-            </li>
           </ul>
         </div>
       </div>
@@ -170,7 +162,7 @@
       <!-- Social Icons -->
       <div class="flex space-x-4 mb-8">
         <a
-          href="#"
+          href="https://www.facebook.com/profile.php?id=61574082636368"
           class="text-gray-400 hover:text-white transition duration-300"
         >
           <svg

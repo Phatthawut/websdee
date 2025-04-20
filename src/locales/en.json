@@ -1,0 +1,451 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "solutions": "Solutions",
+    "caseStudies": "Case Studies",
+    "contact": "Contact",
+    "services": "Services"
+  },
+  "hero": {
+    "title": "Affordable Websites. Fast. Hassle-Free.",
+    "subtitle": "Get your professional website starting at just $99. Ready in 7 days. Mobile-responsive. SEO-ready.",
+    "cta": {
+      "primary": "Get Started Now",
+      "secondary": "View Packages"
+    },
+    "features": {
+      "affordable": "Budget-Friendly – Websites from just $99",
+      "quick": "Fast Delivery – Online in 7 days",
+      "mobile": "Mobile-Responsive – Looks great on any device",
+      "design": "Professional Design – Modern and clean layout",
+      "upgrades": "Upgradeable – Add SEO, eCommerce, custom domains & more",
+      "transparent": "No Hidden Fees – Transparent pricing always"
+    }
+  },
+  "services": {
+    "title": "Our Services",
+    "subtitle": "We offer a range of digital solutions for your business",
+    "learnMore": "Learn More",
+    "viewAllServices": "View All Services",
+    "items": {
+      "web": {
+        "title": "Business Website",
+        "description": "A sleek, modern landing page to represent your business"
+      },
+      "ecommerce": {
+        "title": "E-Commerce Website",
+        "description": "Sell online with a beautiful, secure eCommerce setup"
+      },
+      "seo": {
+        "title": "SEO Optimization",
+        "description": "Rank higher in search results and attract more customers"
+      },
+      "maintenance": {
+        "title": "Website Maintenance",
+        "description": "Ongoing support so your site is always up-to-date and secure"
+      }
+    }
+  },
+  "whyChoose": {
+    "title": "Why Choose WebsDee?",
+    "subtitle": "We provide a range of benefits that set us apart",
+    "description": "Helping Small Businesses Succeed Online. At WebsDee, we believe that every business deserves a great website—without the big price tag. We're a passionate team dedicated to making web design simple, fast, and affordable for entrepreneurs, freelancers, and small business owners. Whether you're just starting out or looking to grow, we're here to help you shine online.",
+    "features": {
+      "affordable": {
+        "title": "Budget-Friendly",
+        "description": "Websites from just $99"
+      },
+      "quickDelivery": {
+        "title": "Fast Delivery",
+        "description": "Online in 7 days"
+      },
+      "responsive": {
+        "title": "Mobile-Responsive",
+        "description": "Looks great on any device"
+      },
+      "design": {
+        "title": "Professional Design",
+        "description": "Modern and clean layout"
+      },
+      "upgrades": {
+        "title": "Upgradeable",
+        "description": "Add SEO, eCommerce, custom domains & more"
+      },
+      "transparent": {
+        "title": "No Hidden Fees",
+        "description": "Transparent pricing always"
+      }
+    }
+  },
+  "packages": {
+    "title": "Our Packages",
+    "subtitle": "Choose the right package for your business",
+    "customMessage": "Need a custom package? Contact us for a tailored solution.",
+    "recommended": "Recommended",
+    "starter": {
+      "title": "Starter",
+      "price": "$99",
+      "subtitle": "Perfect for getting started online.",
+      "description": "For individuals, freelancers, or small local businesses. Focused on clarity, speed, and affordability.",
+      "features": [
+        "5 pages (Home, About, Services, Contact, etc.)",
+        "Mobile-responsive design",
+        "Contact form & map integration",
+        "Free basic hosting (1st year)",
+        "Delivery in 5–7 days"
+      ],
+      "cta": "Get Started"
+    },
+    "ecommerce": {
+      "title": "E-Commerce",
+      "price": "$145",
+      "subtitle": "Sell your products online with ease.",
+      "description": "For online shops, handmade businesses, or boutique sellers. Everything you need to start selling right away.",
+      "features": [
+        "5 pages",
+        "Contact form",
+        "Product pages & cart",
+        "Payment gateway setup",
+        "Basic SEO setup",
+        "Mobile-optimized & SEO-ready",
+        "Free basic hosting (1st year)",
+        "Delivery in 7–10 days"
+      ],
+      "cta": "Get Started"
+    },
+    "premium": {
+      "title": "Premium",
+      "price": "$455",
+      "subtitle": "Tailored to your brand. Built to impress.",
+      "description": "For brands who want a unique online presence. Best for startups, professionals, and businesses that need something different.",
+      "features": [
+        "Custom web design from scratch (no template)",
+        "Fully personalized layout and UX",
+        "Up to 10 pages",
+        "Advanced features (multilingual, animations, etc.)",
+        "SEO optimization",
+        "Free hosting + domain registration assistance",
+        "Dedicated project manager",
+        "Delivery in 10–15 business days"
+      ],
+      "cta": "Get Started"
+    }
+  },
+  "future": {
+    "title": "Let's Build Your Future",
+    "description": "Your online presence is more than just a website—it's your brand's foundation. We craft affordable websites that help your business grow and stand out. Let's build something amazing together.",
+    "cta": {
+      "primary": "Request a Quote",
+      "secondary": "Talk to Us"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Need help or have questions?",
+    "email": "info@websdee.com",
+    "social": "Line / Messenger / Facebook DM"
+  },
+  "cta": {
+    "title": "Ready to get online fast?",
+    "subtitle": "Choose your package and let us build your dream website",
+    "primary": "Choose a Plan",
+    "secondary": "Message Us Now"
+  },
+  "aboutPage": {
+    "hero": {
+      "title": "Your Partner in Going Digital",
+      "description": "We started WebsDee with one clear goal: to make professional websites affordable and accessible to everyone. Our team combines creativity, technical skill, and a deep understanding of small business needs to deliver websites that work—and look great doing it."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "To empower small businesses and individuals by providing affordable, high-quality web solutions with speed, transparency, and care.",
+      "belief": "We believe every business deserves a great online presence, regardless of size or budget. That's why we've created website packages that deliver professional results at prices small businesses can afford.",
+      "team": "Our team brings together expertise in design, development, and digital marketing to create websites that not only look beautiful but also help you achieve your business goals."
+    },
+    "values": {
+      "title": "Our Values",
+      "integrity": {
+        "title": "Integrity",
+        "description": "Clear pricing, no hidden costs"
+      },
+      "speed": {
+        "title": "Speed",
+        "description": "Your website ready in days, not months"
+      },
+      "simplicity": {
+        "title": "Simplicity",
+        "description": "No jargon, no tech headaches"
+      },
+      "mobilefirst": {
+        "title": "Mobile First",
+        "description": "Your site looks great everywhere"
+      }
+    },
+    "team": {
+      "title": "Meet Our Team",
+      "name": "Team WebsDee",
+      "description1": "We're a small, dedicated team of designers, developers, and digital specialists who are passionate about helping businesses succeed online.",
+      "description2": "Each member of our team brings unique skills and perspectives, but we all share the same commitment: making professional web design affordable and accessible for everyone."
+    },
+    "cta": {
+      "title": "Let's Build Something Great Together",
+      "description": "Whether you're launching a new brand or upgrading your online presence, we're here to help you every step of the way.",
+      "services": "Our Services",
+      "contact": "Get In Touch"
+    }
+  },
+  "solutionsPage": {
+    "hero": {
+      "title": "Tailored Solutions for Your Business Goals",
+      "description": "We understand that every business is different. That's why we offer flexible website solutions that can grow with your business and help you stand out in a crowded digital world."
+    },
+    "whoWeHelp": {
+      "title": "Who We Help",
+      "local": {
+        "title": "Local Businesses",
+        "description": "Reach more customers in your neighborhood"
+      },
+      "startups": {
+        "title": "Startups",
+        "description": "Establish credibility and build momentum"
+      },
+      "freelancers": {
+        "title": "Freelancers & Creatives",
+        "description": "Show off your portfolio with style"
+      },
+      "ecommerce": {
+        "title": "Retail & eCommerce",
+        "description": "Sell your products online 24/7"
+      }
+    },
+    "approach": {
+      "title": "Our Solution Approach",
+      "step1": {
+        "title": "Understand your business goals",
+        "description": "We start by learning about your business, your audience, and what you want to achieve with your website."
+      },
+      "step2": {
+        "title": "Match you with the right website solution",
+        "description": "Based on your needs and budget, we recommend the best package or custom solution for your business."
+      },
+      "step3": {
+        "title": "Deliver a beautiful, functional website",
+        "description": "We design and develop your website with care, ensuring it looks great and works perfectly."
+      },
+      "step4": {
+        "title": "Offer upgrades and support as you grow",
+        "description": "Our relationship doesn't end at launch. We're here to help as your business evolves and your website needs change."
+      }
+    },
+    "success": {
+      "title": "Success Stories",
+      "comingSoon": "Coming Soon",
+      "collection": "We're collecting success stories from our clients",
+      "quote": "We're excited to share how our solutions have helped businesses like yours. Check back soon for real-world examples of our work and the results our clients have achieved."
+    },
+    "cta": {
+      "title": "Ready to Find Your Solution?",
+      "description": "Let's discuss how we can help your business succeed online with a website solution tailored to your unique needs.",
+      "viewServices": "View Services",
+      "contact": "Contact Us Today"
+    }
+  },
+  "servicesPage": {
+    "hero": {
+      "title": "Affordable, Professional Website Services",
+      "description": "At WebsDee, we offer all-in-one web services designed for small businesses, startups, and entrepreneurs who want to go online without breaking the bank. Whether you're just starting out or ready to scale, we've got a solution that fits."
+    },
+    "services": {
+      "title": "Our Services Include:",
+      "starter": {
+        "title": "Starter Website",
+        "price": "$99",
+        "features": [
+          "5 pages (Home, About, Services, Contact, etc.)",
+          "Mobile-responsive design",
+          "Contact form",
+          "Free basic hosting (1st year)",
+          "Delivery in 5–7 days"
+        ],
+        "description": "Perfect for new businesses or personal brands."
+      },
+      "ecommerce": {
+        "title": "E-commerce Website",
+        "price": "$145",
+        "features": [
+          "5 pages",
+          "Contact form",
+          "Product pages & cart",
+          "Payment gateway setup",
+          "Basic SEO setup",
+          "Mobile-optimized & SEO-ready",
+          "Free basic hosting (1st year)",
+          "Delivery in 7–10 days"
+        ],
+        "description": "Sell online with ease and confidence."
+      },
+      "custom": {
+        "title": "Custom Website",
+        "price": "$455",
+        "features": [
+          "Custom web design from scratch (no template)",
+          "Fully personalized layout and UX",
+          "Up to 10 pages",
+          "Contact form",
+          "Advanced features (multilingual, animations, etc.)",
+          "SEO optimization",
+          "Free hosting + domain registration assistance",
+          "Dedicated project manager",
+          "Delivery in 10–15 business days"
+        ],
+        "description": "Best for brands that want to stand out."
+      },
+      "popular": "Popular",
+      "getStarted": "Get Started"
+    },
+    "addons": {
+      "title": "Add-on Services",
+      "seo": {
+        "title": "SEO Optimization",
+        "description": "Get found in search results"
+      },
+      "domain": {
+        "title": "Domain & Hosting Setup",
+        "description": "Secure your online address"
+      },
+      "maintenance": {
+        "title": "Website Maintenance",
+        "description": "Keep your site running smoothly"
+      },
+      "content": {
+        "title": "Content Writing",
+        "description": "Professional copy that sells"
+      },
+      "multilingual": {
+        "title": "Multilingual Support",
+        "description": "Reach a global audience"
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Let's create a website that helps your business grow and stand out from the competition.",
+      "button": "Contact Us Today"
+    }
+  },
+  "demo": {
+    "title": "Language Demo Page",
+    "currentLanguage": "Current Language",
+    "currencyExample": "Currency Example",
+    "priceInUSD": "Price in USD",
+    "priceConverted": "Price in current currency",
+    "translations": "Sample Translations",
+    "navigationExample": "Navigation Example"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Questions you might have",
+    "items": {
+      "starter": {
+        "question": "💸 How much does a starter website cost?",
+        "answer": "Our starter package starts at $99, perfect for personal brands or basic business presence"
+      },
+      "howLong": {
+        "question": "🕒 How long does it take to build a website?",
+        "answer": "Most websites take 5-7 days to build, but custom projects can take longer"
+      },
+      "responsive": {
+        "question": "📱 Does the website work on all devices?",
+        "answer": "Yes, our websites are fully responsive and look great on all devices"
+      },
+      "ecommerce": {
+        "question": "🛍️ How much does an eCommerce website cost?",
+        "answer": "Our eCommerce package starts at $450, including WooCommerce setup and payment gateway integration"
+      },
+      "seo": {
+        "question": "📈 Does the website have SEO features?",
+        "answer": "Yes, all our websites are SEO-optimized for better search engine visibility"
+      },
+      "maintenance": {
+        "question": "🔧 Does the website come with ongoing support?",
+        "answer": "Yes, we offer ongoing maintenance and support to ensure your website stays up-to-date and secure"
+      },
+      "hiddenCost": {
+        "question": "💸 Are there any hidden costs?",
+        "answer": "No, the price you see is the price you pay. No hidden fees or additional costs"
+      }
+    }
+  },
+  "policies": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "introduction": {
+        "title": "Introduction"
+      },
+      "dataCollection": {
+        "title": "The Data We Collect About You"
+      },
+      "howWeUse": {
+        "title": "How We Use Your Personal Data"
+      },
+      "cookies": {
+        "title": "Cookies"
+      },
+      "thirdParty": {
+        "title": "Third-Party Links"
+      },
+      "dataRights": {
+        "title": "Your Data Protection Rights"
+      },
+      "contact": {
+        "title": "Contact Us"
+      }
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "introduction": {
+        "title": "Introduction"
+      },
+      "license": {
+        "title": "License"
+      },
+      "userComments": {
+        "title": "User Comments"
+      },
+      "hyperlinking": {
+        "title": "Hyperlinking to our Content"
+      },
+      "liability": {
+        "title": "Liability"
+      },
+      "changes": {
+        "title": "Changes to Terms"
+      },
+      "contact": {
+        "title": "Contact Us"
+      }
+    }
+  },
+  "contactForm": {
+    "title": "Get in Touch",
+    "description": "Have a question or need assistance? Fill out the form below, and our team will get back to you as soon as possible.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message"
+  },
+  "testimonials": {
+    "title": "ความคิดเห็นจากลูกค้าของเรา",
+    "owner1": {
+      "name": "เจษฎา ดำรงเดช",
+      "description": "WebsDee สร้างเว็บไซต์ที่ตรงกับความต้องการของธุรกิจเราได้อย่างสมบูรณ์แบบ ทั้งสวยงาม ใช้งานง่าย และที่สำคัญคือช่วยให้เราได้ลูกค้าใหม่เพิ่มขึ้น",
+      "company": "ชื่อบริษัท",
+      "position": "CEO"
+    },
+    "owner2": {
+      "name": "กิตติศักดิ์ วัฒนากุล",
+      "description": "ทีมงาน WebsDee ทำงานได้อย่างมืออาชีพ รวดเร็ว และให้คำแนะนำที่ยอดเยี่ยม เว็บไซต์ของเราดูดีและใช้งานได้ง่ายขึ้นมาก!",
+      "company": "ชื่อบริษัท",
+      "position": "Owner"
+    }
+  }
+}

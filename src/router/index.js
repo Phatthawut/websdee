@@ -19,7 +19,12 @@ const routes = [
       {
         path: "solutions",
         name: "Solutions",
-        component: () => import("@/views/Solutions.vue"),
+        component: () => import("@/views/SolutionsPage.vue"),
+      },
+      {
+        path: "services",
+        name: "Services",
+        component: () => import("@/views/ServicesPage.vue"),
       },
       {
         path: "case-studies",
@@ -29,12 +34,27 @@ const routes = [
       {
         path: "about",
         name: "About",
-        component: () => import("@/views/AboutView.vue"),
+        component: () => import("@/views/AboutPage.vue"),
       },
       {
         path: "contact",
         name: "Contact",
         component: () => import("@/views/Contact.vue"),
+      },
+      {
+        path: "faq",
+        name: "FAQ",
+        component: () => import("@/views/FAQView.vue"),
+      },
+      {
+        path: "privacy-policy",
+        name: "PrivacyPolicy",
+        component: () => import("@/views/PrivacyPolicy.vue"),
+      },
+      {
+        path: "terms",
+        name: "TermsOfUse",
+        component: () => import("@/views/TermsOfUse.vue"),
       },
       {
         path: "/:pathMatch(.*)*",
