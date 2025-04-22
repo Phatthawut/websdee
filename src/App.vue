@@ -1,10 +1,11 @@
 <script setup>
-// No imports needed as we're using router-view
+import ScrollToTop from "@/components/ScrollToTop.vue";
 </script>
 
 <template>
   <div>
     <router-view />
+    <ScrollToTop />
   </div>
 </template>
 
