@@ -12,11 +12,6 @@ const routes = [
         component: () => import("@/views/HomePage.vue"),
       },
       {
-        path: "page",
-        name: "Page",
-        component: () => import("@/views/Page.vue"),
-      },
-      {
         path: "solutions",
         name: "Solutions",
         component: () => import("@/views/SolutionsPage.vue"),
@@ -27,11 +22,6 @@ const routes = [
         component: () => import("@/views/ServicesPage.vue"),
       },
       {
-        path: "case-studies",
-        name: "CaseStudies",
-        component: () => import("@/views/CaseStudies.vue"),
-      },
-      {
         path: "about",
         name: "About",
         component: () => import("@/views/AboutPage.vue"),
@@ -40,11 +30,6 @@ const routes = [
         path: "contact",
         name: "Contact",
         component: () => import("@/views/Contact.vue"),
-      },
-      {
-        path: "faq",
-        name: "FAQ",
-        component: () => import("@/views/FAQView.vue"),
       },
       {
         path: "privacy-policy",
@@ -60,16 +45,6 @@ const routes = [
         path: "/:pathMatch(.*)*",
         name: "NotFound",
         component: () => import("@/views/NotFound.vue"),
-      },
-      {
-        path: "sampleSection",
-        name: "SampleSection",
-        component: () => import("@/views/ExampleSectionView.vue"),
-      },
-      {
-        path: "sampleCTA",
-        name: "SampleCTA",
-        component: () => import("@/views/ExampleCTAView.vue"),
       },
     ],
   },
