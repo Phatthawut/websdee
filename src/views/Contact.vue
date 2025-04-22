@@ -47,6 +47,9 @@
                     class="p-4 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
+                  <p v-if="errors.name" class="mt-1 text-sm text-red-500">
+                    {{ errors.name }}
+                  </p>
                 </div>
 
                 <div class="reveal-element">
@@ -63,6 +66,45 @@
                     class="p-4 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
+                  <p v-if="errors.email" class="mt-1 text-sm text-red-500">
+                    {{ errors.email }}
+                  </p>
+                </div>
+
+                <div class="reveal-element">
+                  <label
+                    for="phone"
+                    class="block text-sm font-medium text-gray-700 pb-2"
+                  >
+                    {{ $t("contactForm.phone") }}
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    v-model="form.phone"
+                    class="p-4 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  <p v-if="errors.phone" class="mt-1 text-sm text-red-500">
+                    {{ errors.phone }}
+                  </p>
+                </div>
+
+                <div class="reveal-element">
+                  <label
+                    for="company"
+                    class="block text-sm font-medium text-gray-700 pb-2"
+                  >
+                    {{ $t("contactForm.company") }}
+                  </label>
+                  <input
+                    type="text"
+                    id="company"
+                    v-model="form.company"
+                    class="p-4 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  <p v-if="errors.company" class="mt-1 text-sm text-red-500">
+                    {{ errors.company }}
+                  </p>
                 </div>
 
                 <div class="reveal-element">
@@ -79,6 +121,9 @@
                     class="p-4 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                   ></textarea>
+                  <p v-if="errors.message" class="mt-1 text-sm text-red-500">
+                    {{ errors.message }}
+                  </p>
                 </div>
 
                 <div class="reveal-element">
@@ -124,34 +169,242 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import emailjs from "@emailjs/browser";
+import { useReCaptcha } from "vue-recaptcha-v3";
+
+const { executeRecaptcha, recaptchaLoaded } = useReCaptcha();
+
+const isLoaded = ref(false);
+const isSubmitting = ref(false);
+const submitStatus = ref({ show: false, isError: false, message: "" });
+
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+// Rate limiting: Track submissions
+const lastSubmission = ref(
+  localStorage.getItem("lastSubmission")
+    ? parseInt(localStorage.getItem("lastSubmission"))
+    : 0
+);
+const submissionCount = ref(
+  localStorage.getItem("submissionCount")
+    ? parseInt(localStorage.getItem("submissionCount"))
+    : 0
+);
+
+// Computed property to check if submission is allowed (rate limiting)
+const canSubmit = computed(() => {
+  const now = Date.now();
+  const hourInMs = 60 * 60 * 1000;
+
+  // Reset counter if more than an hour has passed since last submission
+  if (now - lastSubmission.value > hourInMs) {
+    submissionCount.value = 0;
+    return true;
+  }
+
+  // Limit to 5 submissions per hour
+  return submissionCount.value < 5;
+});
+
+// Time until next submission allowed (in minutes)
+const timeUntilNextSubmission = computed(() => {
+  if (canSubmit.value) return 0;
+
+  const now = Date.now();
+  const hourInMs = 60 * 60 * 1000;
+  const remainingMs = hourInMs - (now - lastSubmission.value);
+
+  return Math.ceil(remainingMs / (60 * 1000));
+});
 
 const form = ref({
   name: "",
   email: "",
+  phone: "",
+  company: "",
   message: "",
 });
 
-const isSubmitting = ref(false);
+// Form validation
+const errors = ref({});
 
-const handleSubmit = async () => {
+// Enhanced validation with more specific checks and stronger security measures
+const validateForm = () => {
+  errors.value = {};
+
+  // Name validation (required, min 2 chars, no numbers or special chars)
+  if (!form.value.name.trim()) {
+    errors.value.name = "Name is required";
+  } else if (form.value.name.trim().length < 2) {
+    errors.value.name = "Name must be at least 2 characters";
+  } else if (!/^[A-Za-z\s\-']+$/.test(form.value.name.trim())) {
+    errors.value.name =
+      "Name should only contain letters, spaces, hyphens, and apostrophes";
+  }
+
+  // Email validation (required, valid format) - using a more comprehensive regex
+  if (!form.value.email.trim()) {
+    errors.value.email = "Email is required";
+  } else if (
+    !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+      form.value.email.trim()
+    )
+  ) {
+    errors.value.email = "Please enter a valid email address";
+  }
+
+  // Phone validation (optional, but if provided must be valid)
+  if (
+    form.value.phone &&
+    !/^[\d\+\-\s\(\)]{6,20}$/.test(form.value.phone.trim())
+  ) {
+    errors.value.phone = "Please enter a valid phone number";
+  }
+
+  // Message validation (required, min length, max length to prevent abuse)
+  if (!form.value.message.trim()) {
+    errors.value.message = "Message is required";
+  } else if (form.value.message.trim().length < 10) {
+    errors.value.message = "Message must be at least 10 characters";
+  } else if (form.value.message.trim().length > 1000) {
+    errors.value.message = "Message must be less than 1000 characters";
+  }
+
+  // Check for rate limiting
+  if (!canSubmit.value) {
+    errors.value.rateLimit = `Too many submissions. Please try again in ${timeUntilNextSubmission.value} minutes.`;
+  }
+
+  return Object.keys(errors.value).length === 0;
+};
+
+// Enhanced input sanitization function
+const sanitizeInput = (input) => {
+  if (!input) return "";
+
+  // First pass: Create a temporary DOM element to escape HTML
+  const tempElement = document.createElement("div");
+  tempElement.textContent = input;
+  let sanitized = tempElement.innerHTML;
+
+  // Second pass: Remove any potentially dangerous patterns
+  sanitized = sanitized
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // Remove script tags
+    .replace(/javascript:/gi, "blocked:") // Block javascript: protocol
+    .replace(/on\w+=/gi, "blocked="); // Block onload=, onclick=, etc.
+
+  return sanitized;
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    submitStatus.value = {
+      show: true,
+      isError: true,
+      message: "Please fill in all required fields correctly.",
+    };
+    return;
+  }
+
   isSubmitting.value = true;
+  submitStatus.value.show = false;
+
   try {
-    // Here you would typically send the form data to your backend
-    console.log("Form submitted:", form.value);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    alert("Message sent successfully!");
-    form.value = { name: "", email: "", message: "" };
+    // Step 1: Get reCAPTCHA token
+    await recaptchaLoaded();
+    const token = await executeRecaptcha("contact_form");
+
+    // Step 2: Verify token with our serverless function
+    const verifyResponse = await fetch("/api/verify-recaptcha", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    const verifyResult = await verifyResponse.json();
+
+    if (!verifyResult.success) {
+      throw new Error(verifyResult.message || "reCAPTCHA verification failed");
+    }
+
+    // Step 3: If verification passed, send email via EmailJS
+    // Sanitize all inputs before sending
+    const templateParams = {
+      from_name: sanitizeInput(form.value.name),
+      from_email: sanitizeInput(form.value.email),
+      phone: sanitizeInput(form.value.phone) || "Not provided",
+      company: sanitizeInput(form.value.company) || "Not provided",
+      message: sanitizeInput(form.value.message),
+      to_name: "WebsDee Team",
+      reply_to: sanitizeInput(form.value.email),
+      source: "WebsDee Website",
+      // No need to include the token since we've already verified it
+    };
+
+    // Using environment variables instead of hardcoded values
+    await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_PUBLIC_KEY
+    );
+
+    // Update rate limiting counters
+    lastSubmission.value = Date.now();
+    submissionCount.value += 1;
+    localStorage.setItem("lastSubmission", lastSubmission.value.toString());
+    localStorage.setItem("submissionCount", submissionCount.value.toString());
+
+    submitStatus.value = {
+      show: true,
+      isError: false,
+      message:
+        "Thank you! Your message has been sent successfully. We will get back to you soon.",
+    };
+
+    // Reset form
+    form.value = {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      company: "",
+    };
+
+    // Reset errors
+    errors.value = {};
   } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("Failed to send message. Please try again.");
+    console.error("Error sending email:", error);
+
+    // Generic error message for users
+    submitStatus.value = {
+      show: true,
+      isError: true,
+      message:
+        "Sorry, there was an error processing your request. Please try again later or contact us directly.",
+    };
   } finally {
     isSubmitting.value = false;
   }
 };
 
-import { onMounted, onUnmounted } from "vue";
+onMounted(() => {
+  // Initialize EmailJS with your public key from env variable
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  // Trigger animations after component is mounted
+  setTimeout(() => {
+    isLoaded.value = true;
+  }, 100);
+});
 
 // Function to set up reveal animations
 const setupRevealAnimations = () => {
