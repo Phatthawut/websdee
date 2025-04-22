@@ -33,6 +33,19 @@
               </p>
 
               <form @submit.prevent="handleSubmit" class="space-y-6">
+                <!-- Add honeypot field - invisible to humans, but bots might fill it -->
+                <div class="hidden" aria-hidden="true">
+                  <label for="website" class="hidden">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    v-model="form.website"
+                    tabindex="-1"
+                    autocomplete="off"
+                  />
+                </div>
+
                 <div class="reveal-element">
                   <label
                     for="name"
@@ -166,6 +179,72 @@
       </div>
     </section>
   </div>
+
+  <!-- Toast Notification -->
+  <div
+    v-if="toast.show"
+    class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg max-w-md transition-all duration-300"
+    :class="toast.isError ? 'bg-red-500 text-white' : 'bg-green-500 text-white'"
+  >
+    <div class="flex items-start">
+      <div class="flex-shrink-0">
+        <svg
+          v-if="!toast.isError"
+          class="h-6 w-6 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        <svg
+          v-else
+          class="h-6 w-6 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium">{{ toast.message }}</p>
+      </div>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button
+            @click="toast.show = false"
+            class="inline-flex text-white hover:text-gray-100 focus:outline-none"
+          >
+            <span class="sr-only">Close</span>
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -174,7 +253,12 @@ import emailjs from "@emailjs/browser";
 
 const isLoaded = ref(false);
 const isSubmitting = ref(false);
-const submitStatus = ref({ show: false, isError: false, message: "" });
+// Replace submitStatus with toast
+const toast = ref({
+  show: false,
+  isError: false,
+  message: "",
+});
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
@@ -224,23 +308,44 @@ const form = ref({
   phone: "",
   company: "",
   message: "",
+  website: "", // Honeypot field - should remain empty
 });
 
 // Form validation
 const errors = ref({});
 
+// Updated function to show toast
+const showToast = (message, isError = false) => {
+  toast.value = {
+    show: true,
+    isError,
+    message,
+  };
+
+  // Auto-hide toast after 5 seconds
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 5000);
+};
+
 // Enhanced validation with more specific checks and stronger security measures
 const validateForm = () => {
   errors.value = {};
 
-  // Name validation (required, min 2 chars, no numbers or special chars)
+  // Check honeypot field - if filled, silently reject the form
+  if (form.value.website) {
+    console.log("Honeypot triggered - possible bot submission");
+    return false;
+  }
+
+  // Name validation (required, min 2 chars, allow Latin and Thai characters)
   if (!form.value.name.trim()) {
     errors.value.name = "Name is required";
   } else if (form.value.name.trim().length < 2) {
     errors.value.name = "Name must be at least 2 characters";
-  } else if (!/^[A-Za-z\s\-']+$/.test(form.value.name.trim())) {
+  } else if (!/^[\u0E00-\u0E7FA-Za-z\s\-']+$/.test(form.value.name.trim())) {
     errors.value.name =
-      "Name should only contain letters, spaces, hyphens, and apostrophes";
+      "Name should only contain letters, Thai characters, spaces, hyphens, and apostrophes";
   }
 
   // Email validation (required, valid format) - using a more comprehensive regex
@@ -301,16 +406,17 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!validateForm()) {
-    submitStatus.value = {
-      show: true,
-      isError: true,
-      message: "Please fill in all required fields correctly.",
-    };
+    // Show toast for validation errors
+    if (form.value.website) {
+      // If honeypot was triggered, show a generic message
+      showToast("Something went wrong. Please try again later.", true);
+    } else {
+      showToast("Please fill in all required fields correctly.", true);
+    }
     return;
   }
 
   isSubmitting.value = true;
-  submitStatus.value.show = false;
 
   try {
     // Sanitize all inputs before sending
@@ -339,12 +445,10 @@ const handleSubmit = async (e) => {
     localStorage.setItem("lastSubmission", lastSubmission.value.toString());
     localStorage.setItem("submissionCount", submissionCount.value.toString());
 
-    submitStatus.value = {
-      show: true,
-      isError: false,
-      message:
-        "Thank you! Your message has been sent successfully. We will get back to you soon.",
-    };
+    // Show success toast
+    showToast(
+      "Thank you! Your message has been sent successfully. We will get back to you soon."
+    );
 
     // Reset form
     form.value = {
@@ -353,6 +457,7 @@ const handleSubmit = async (e) => {
       phone: "",
       message: "",
       company: "",
+      website: "", // Reset honeypot field too
     };
 
     // Reset errors
@@ -360,13 +465,11 @@ const handleSubmit = async (e) => {
   } catch (error) {
     console.error("Error sending email:", error);
 
-    // Generic error message for users
-    submitStatus.value = {
-      show: true,
-      isError: true,
-      message:
-        "Sorry, there was an error processing your request. Please try again later or contact us directly.",
-    };
+    // Show error toast
+    showToast(
+      "Sorry, there was an error processing your request. Please try again later or contact us directly.",
+      true
+    );
   } finally {
     isSubmitting.value = false;
   }
