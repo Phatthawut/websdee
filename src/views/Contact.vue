@@ -171,9 +171,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import emailjs from "@emailjs/browser";
-import { useReCaptcha } from "vue-recaptcha-v3";
-
-const { executeRecaptcha, recaptchaLoaded } = useReCaptcha();
 
 const isLoaded = ref(false);
 const isSubmitting = ref(false);
@@ -316,26 +313,6 @@ const handleSubmit = async (e) => {
   submitStatus.value.show = false;
 
   try {
-    // Step 1: Get reCAPTCHA token
-    await recaptchaLoaded();
-    const token = await executeRecaptcha("contact_form");
-
-    // Step 2: Verify token with our serverless function
-    const verifyResponse = await fetch("/api/verify-recaptcha", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token }),
-    });
-
-    const verifyResult = await verifyResponse.json();
-
-    if (!verifyResult.success) {
-      throw new Error(verifyResult.message || "reCAPTCHA verification failed");
-    }
-
-    // Step 3: If verification passed, send email via EmailJS
     // Sanitize all inputs before sending
     const templateParams = {
       from_name: sanitizeInput(form.value.name),
@@ -346,10 +323,9 @@ const handleSubmit = async (e) => {
       to_name: "WebsDee Team",
       reply_to: sanitizeInput(form.value.email),
       source: "WebsDee Website",
-      // No need to include the token since we've already verified it
     };
 
-    // Using environment variables instead of hardcoded values
+    // Send email directly with EmailJS
     await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
