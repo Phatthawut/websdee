@@ -33,6 +33,11 @@
           >{{ $t("nav.services") }}</router-link
         >
         <router-link
+          to="/articles"
+          class="text-gray-700 hover:text-blue-700 font-medium"
+          >{{ $t("nav.articles") }}</router-link
+        >
+        <router-link
           to="/contact"
           class="text-gray-700 hover:text-blue-700 font-medium"
           >{{ $t("nav.contact") }}</router-link
@@ -84,26 +89,37 @@
       <div class="flex flex-col space-y-3">
         <router-link
           to="/"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >{{ $t("nav.home") }}</router-link
         >
         <router-link
           to="/solutions"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >{{ $t("nav.solutions") }}</router-link
         >
         <router-link
           to="/about"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >{{ $t("nav.about") }}</router-link
         >
         <router-link
           to="/services"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >{{ $t("nav.services") }}</router-link
         >
         <router-link
+          to="/articles"
+          @click="closeMenu"
+          class="text-gray-700 hover:text-blue-700 font-medium py-2"
+          >{{ $t("nav.articles") }}</router-link
+        >
+        <router-link
           to="/contact"
+          @click="closeMenu"
           class="bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-center"
           >{{ $t("nav.contact") }}</router-link
         >
@@ -113,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 
 const isMenuOpen = ref(false);
@@ -121,4 +137,32 @@ const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
+
+const closeMenu = () => {
+  isMenuOpen.value = false;
+};
+
+// Close menu when clicking outside or pressing escape
+const handleClickOutside = (event) => {
+  const navbar = event.target.closest("header");
+  if (!navbar && isMenuOpen.value) {
+    closeMenu();
+  }
+};
+
+const handleEscapeKey = (event) => {
+  if (event.key === "Escape" && isMenuOpen.value) {
+    closeMenu();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+  document.addEventListener("keydown", handleEscapeKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("keydown", handleEscapeKey);
+});
 </script>

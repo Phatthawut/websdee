@@ -92,41 +92,49 @@
       <div class="flex flex-col space-y-3">
         <router-link
           to="/"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Home</router-link
         >
         <router-link
           to="/page"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Page</router-link
         >
         <router-link
           to="/solutions"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Solutions</router-link
         >
         <router-link
           to="/company"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Company</router-link
         >
         <router-link
           to="/case-studies"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Case Studies</router-link
         >
         <router-link
           to="/blog"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >Blog</router-link
         >
         <router-link
           to="/faq"
+          @click="closeMenu"
           class="text-gray-700 hover:text-blue-700 font-medium py-2"
           >FAQs</router-link
         >
         <router-link
           to="/contact"
+          @click="closeMenu"
           class="bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-center"
           >Contact</router-link
         >
@@ -136,11 +144,39 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 const isMenuOpen = ref(false);
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
+
+const closeMenu = () => {
+  isMenuOpen.value = false;
+};
+
+// Close menu when clicking outside or pressing escape
+const handleClickOutside = (event) => {
+  const navbar = event.target.closest("header");
+  if (!navbar && isMenuOpen.value) {
+    closeMenu();
+  }
+};
+
+const handleEscapeKey = (event) => {
+  if (event.key === "Escape" && isMenuOpen.value) {
+    closeMenu();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+  document.addEventListener("keydown", handleEscapeKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("keydown", handleEscapeKey);
+});
 </script>

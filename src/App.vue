@@ -1,5 +1,9 @@
 <script setup>
+import { onMounted } from "vue";
 import ScrollToTop from "@/components/ScrollToTop.vue";
+import { useArticleStore } from "@/stores/articleStore";
+
+const articleStore = useArticleStore();
 </script>
 
 <template>
