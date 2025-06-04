@@ -11,4 +11,6 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 app.use(i18n);
+
+// Mount app immediately - auth initialization will happen when needed
 app.mount("#app");

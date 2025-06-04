@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import MainLayout from "@/layouts/MainLayout.vue";
+import { useAuthStore } from "@/stores/authStore.js";
 
 const routes = [
   {
@@ -58,6 +59,26 @@ const routes = [
       },
     ],
   },
+  // Auth Routes (outside MainLayout)
+  {
+    path: "/login",
+    name: "Login",
+    component: () => import("@/views/auth/LoginPage.vue"),
+    meta: {
+      hideLayout: true,
+      guest: true, // Only accessible when not authenticated
+    },
+  },
+  // Admin Routes (will be added later)
+  {
+    path: "/admin",
+    name: "Admin",
+    redirect: "/admin/dashboard",
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+    },
+  },
 ];
 
 const router = createRouter({
@@ -67,6 +88,37 @@ const router = createRouter({
     // Always scroll to top
     return { top: 0 };
   },
+});
+
+// Route Guards
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+
+  // Only wait for auth initialization if the route requires authentication
+  if (to.meta.requiresAuth || to.meta.guest) {
+    if (!authStore.isInitialized) {
+      await authStore.initializeAuth();
+    }
+  }
+
+  // Check if route requires authentication
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      return next("/login");
+    }
+
+    // Check if route requires admin access
+    if (to.meta.requiresAdmin && !authStore.canAccessAdmin) {
+      return next("/login");
+    }
+  }
+
+  // Redirect authenticated users away from guest-only pages
+  if (to.meta.guest && authStore.isAuthenticated && authStore.canAccessAdmin) {
+    return next("/admin/dashboard");
+  }
+
+  next();
 });
 
 export default router;
