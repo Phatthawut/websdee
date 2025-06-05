@@ -130,28 +130,41 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
+// Watch for authentication changes and redirect accordingly
+watch(
+  () => [authStore.isAuthenticated, authStore.userProfile],
+  ([isAuth, profile]) => {
+    if (isAuth && profile) {
+      // User is authenticated and profile is loaded
+      if (authStore.canAccessAdmin) {
+        router.push("/admin/dashboard");
+      } else if (authStore.isPending) {
+        authStore.error =
+          "Your account is pending approval. Please contact the administrator to activate your access.";
+      } else {
+        authStore.error =
+          "You do not have permission to access the admin panel. Please contact an administrator.";
+      }
+    }
+  },
+  { immediate: true }
+);
+
 // Handle Google sign in
 const handleGoogleSignIn = async () => {
   try {
-    await authStore.signInWithGoogle();
+    // Clear any previous errors
+    authStore.clearError();
 
-    // Check user role and redirect accordingly
-    if (authStore.canAccessAdmin) {
-      router.push("/admin/dashboard");
-    } else if (authStore.isPending) {
-      authStore.error =
-        "Your account is pending approval. Please contact the administrator to activate your access.";
-    } else {
-      authStore.error =
-        "You do not have permission to access the admin panel. Please contact an administrator.";
-    }
+    // Sign in with Google - the watcher will handle the redirect
+    await authStore.signInWithGoogle();
   } catch (error) {
     console.error("Login failed:", error);
     // Error is already handled in the store
@@ -159,7 +172,12 @@ const handleGoogleSignIn = async () => {
 };
 
 // Redirect if already authenticated
-onMounted(() => {
+onMounted(async () => {
+  // Wait for auth to initialize
+  if (!authStore.isInitialized) {
+    await authStore.initializeAuth();
+  }
+
   if (authStore.isAuthenticated && authStore.canAccessAdmin) {
     router.push("/admin/dashboard");
   }

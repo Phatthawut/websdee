@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import MainLayout from "@/layouts/MainLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
 import { useAuthStore } from "@/stores/authStore.js";
 
 const routes = [
@@ -69,15 +70,53 @@ const routes = [
       guest: true, // Only accessible when not authenticated
     },
   },
-  // Admin Routes (will be added later)
+  // Admin Routes
   {
     path: "/admin",
-    name: "Admin",
-    redirect: "/admin/dashboard",
+    component: AdminLayout,
     meta: {
       requiresAuth: true,
       requiresAdmin: true,
     },
+    children: [
+      {
+        path: "",
+        redirect: "/admin/dashboard",
+      },
+      {
+        path: "dashboard",
+        name: "AdminDashboard",
+        component: () => import("@/views/admin/AdminDashboard.vue"),
+      },
+      {
+        path: "articles",
+        name: "AdminArticles",
+        component: () => import("@/views/admin/AdminArticles.vue"),
+      },
+      {
+        path: "articles/new",
+        name: "AdminArticleNew",
+        component: () => import("@/views/admin/AdminArticleEditor.vue"),
+      },
+      {
+        path: "articles/:id/edit",
+        name: "AdminArticleEdit",
+        component: () => import("@/views/admin/AdminArticleEditor.vue"),
+      },
+      {
+        path: "users",
+        name: "AdminUsers",
+        component: () => import("@/views/admin/AdminUsers.vue"),
+        meta: {
+          requiresAdmin: true, // Only admin can access user management
+        },
+      },
+      {
+        path: "settings",
+        name: "AdminSettings",
+        component: () => import("@/views/admin/AdminSettings.vue"),
+      },
+    ],
   },
 ];
 

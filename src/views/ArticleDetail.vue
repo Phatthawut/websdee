@@ -106,8 +106,8 @@
         <div class="container mx-auto px-4">
           <div class="max-w-4xl mx-auto">
             <!-- Article Content -->
-            <div class="prose prose-lg prose-slate max-w-none">
-              <div v-html="localizedContent"></div>
+            <div class="max-w-none">
+              <div v-html="localizedContent" class="article-content"></div>
             </div>
 
             <!-- Tags -->
@@ -286,7 +286,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useArticleStore } from "@/stores/articleStore.js";
@@ -331,6 +331,9 @@ const loadArticle = async () => {
           .slice(0, 3);
       }
       notFound.value = false;
+
+      // Update meta tags after article is loaded
+      updateMetaTags();
     } else {
       notFound.value = true;
     }
@@ -356,6 +359,82 @@ const localizedContent = computed(() => {
 const articleTags = computed(() => {
   return getArticleTags(articleStore.currentArticle);
 });
+
+// SEO Meta Tags Management
+const updateMetaTags = () => {
+  if (!articleStore.currentArticle) return;
+
+  const title =
+    articleStore.currentArticle.metaTitle?.[locale.value] ||
+    articleStore.currentArticle.metaTitle?.en ||
+    localizedTitle.value ||
+    "Article";
+
+  const description =
+    articleStore.currentArticle.metaDescription?.[locale.value] ||
+    articleStore.currentArticle.metaDescription?.en ||
+    localizedExcerpt.value ||
+    "";
+
+  const image = articleStore.currentArticle.image || "";
+  const url = window.location.href;
+
+  // Update document title
+  document.title = `${title} | WebsDee`;
+
+  // Update or create meta tags
+  updateMetaTag("description", description);
+  updateMetaTag("keywords", articleStore.currentArticle.tags?.join(", ") || "");
+
+  // Open Graph meta tags
+  updateMetaTag("og:title", title, "property");
+  updateMetaTag("og:description", description, "property");
+  updateMetaTag("og:image", image, "property");
+  updateMetaTag("og:url", url, "property");
+  updateMetaTag("og:type", "article", "property");
+
+  // Twitter Card meta tags
+  updateMetaTag("twitter:card", "summary_large_image", "name");
+  updateMetaTag("twitter:title", title, "name");
+  updateMetaTag("twitter:description", description, "name");
+  updateMetaTag("twitter:image", image, "name");
+
+  // Article specific meta tags
+  if (articleStore.currentArticle.author?.name) {
+    updateMetaTag("author", articleStore.currentArticle.author.name);
+  }
+
+  // Canonical URL
+  updateLinkTag("canonical", url);
+};
+
+const updateMetaTag = (name, content, attribute = "name") => {
+  if (!content) return;
+
+  let meta = document.querySelector(`meta[${attribute}="${name}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute(attribute, name);
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute("content", content);
+};
+
+const updateLinkTag = (rel, href) => {
+  if (!href) return;
+
+  let link = document.querySelector(`link[rel="${rel}"]`);
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", rel);
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", href);
+};
+
+// Watch for article changes to update meta tags
+watch(() => articleStore.currentArticle, updateMetaTags, { deep: true });
+watch(locale, updateMetaTags);
 
 // Helper function to get category name
 const getCategoryName = (categoryId) => {
@@ -425,64 +504,277 @@ onMounted(() => {
   min-height: 100vh;
 }
 
-/* Prose styles for article content */
-.prose h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #051d40;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+/* Enhanced styles for TipTap HTML content */
+.article-content {
+  color: #374151 !important;
+  line-height: 1.75 !important;
+  font-size: 1rem !important;
 }
 
-.prose h3 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #051d40;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
+.article-content h1 {
+  font-size: 2.25rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 2rem 0 1rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: block !important;
 }
 
-.prose p {
-  color: #374151;
-  line-height: 1.625;
-  margin-bottom: 1rem;
+.article-content h2 {
+  font-size: 1.875rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 2rem 0 1rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.3 !important;
+  display: block !important;
 }
 
-.prose ul,
-.prose ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
+.article-content h3 {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 1.5rem 0 0.75rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.prose li {
-  margin-bottom: 0.5rem;
+.article-content h4 {
+  font-size: 1.25rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 1.5rem 0 0.75rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.prose blockquote {
-  border-left: 4px solid #fbc646;
-  padding-left: 1rem;
-  font-style: italic;
-  color: #6b7280;
-  margin: 1.5rem 0;
+.article-content h5 {
+  font-size: 1.125rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 1.25rem 0 0.5rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.prose code {
-  background-color: #f3f4f6;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+.article-content h6 {
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  color: #051d40 !important;
+  margin: 1.25rem 0 0.5rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.prose pre {
-  background-color: #f3f4f6;
-  padding: 1rem;
-  border-radius: 0.25rem;
-  overflow-x: auto;
-  margin: 1rem 0;
+.article-content p {
+  color: #374151 !important;
+  line-height: 1.75 !important;
+  margin: 0 0 1.25rem 0 !important;
+  padding: 0 !important;
+  white-space: pre-wrap !important;
+  display: block !important;
+  font-size: 1rem !important;
 }
 
-.prose img {
-  border-radius: 0.5rem;
-  margin: 1.5rem 0;
+.article-content p:first-child {
+  margin-top: 0 !important;
+}
+
+.article-content p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.article-content strong {
+  font-weight: 600 !important;
+  color: #111827 !important;
+}
+
+.article-content em {
+  font-style: italic !important;
+}
+
+.article-content u {
+  text-decoration: underline !important;
+}
+
+/* Fix for lists - make them visible and properly styled */
+.article-content ul {
+  display: block !important;
+  margin: 1.25rem 0 !important;
+  padding: 0 0 0 1.75rem !important;
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+}
+
+.article-content ol {
+  display: block !important;
+  margin: 1.25rem 0 !important;
+  padding: 0 0 0 1.75rem !important;
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+}
+
+.article-content li {
+  display: list-item !important;
+  margin: 0.5rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.75 !important;
+  color: #374151 !important;
+  list-style: inherit !important;
+}
+
+.article-content li::marker {
+  color: #374151 !important;
+}
+
+.article-content li > p {
+  margin: 0.5rem 0 !important;
+  display: inline !important;
+}
+
+.article-content ul ul,
+.article-content ul ol,
+.article-content ol ul,
+.article-content ol ol {
+  margin: 0.75rem 0 !important;
+  padding-left: 1.5rem !important;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #fbc646 !important;
+  padding: 0.5rem 1rem !important;
+  font-style: italic !important;
+  color: #6b7280 !important;
+  margin: 1.75rem 0 !important;
+  background-color: #f9fafb !important;
+  border-radius: 0.375rem !important;
+  display: block !important;
+}
+
+.article-content blockquote p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.article-content a {
+  color: #051d40 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  transition: color 0.2s ease !important;
+}
+
+.article-content a:hover {
+  color: #fbc646 !important;
+}
+
+.article-content code {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+  padding: 0.125rem 0.375rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+  font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+}
+
+.article-content pre {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  padding: 1.25rem !important;
+  border-radius: 0.5rem !important;
+  overflow-x: auto !important;
+  margin: 1.75rem 0 !important;
+  font-family: "Consolas", "Monaco", "Courier New", monospace !important;
+  line-height: 1.5 !important;
+  display: block !important;
+}
+
+.article-content pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+}
+
+.article-content img {
+  border-radius: 0.5rem !important;
+  margin: 1.75rem 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+
+.article-content hr {
+  border: none !important;
+  border-top: 1px solid #e5e7eb !important;
+  margin: 2rem 0 !important;
+  display: block !important;
+}
+
+/* Force spacing for empty elements */
+.article-content br {
+  display: block !important;
+  margin: 0.5rem 0 !important;
+  content: "" !important;
+  line-height: 1rem !important;
+}
+
+.article-content p:empty {
+  min-height: 1.5rem !important;
+  display: block !important;
+  margin: 0 0 1.25rem 0 !important;
+}
+
+/* Ensure proper spacing between all block elements */
+.article-content > * {
+  margin-bottom: 1rem !important;
+}
+
+.article-content > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Table styles */
+.article-content table {
+  width: 100% !important;
+  margin: 1.75rem 0 !important;
+  border-collapse: collapse !important;
+  display: table !important;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid #e5e7eb !important;
+  padding: 0.75rem !important;
+  text-align: left !important;
+}
+
+.article-content th {
+  background-color: #f9fafb !important;
+  font-weight: 600 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .article-content h1 {
+    font-size: 1.875rem !important;
+  }
+
+  .article-content h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .article-content h3 {
+    font-size: 1.25rem !important;
+  }
+
+  .article-content {
+    font-size: 0.9rem !important;
+  }
 }
 </style>

@@ -24,6 +24,12 @@ export const useAuthStore = defineStore("auth", () => {
   const canCreateArticles = computed(() => isEditor.value);
   const canDeleteArticles = computed(() => isAdmin.value);
 
+  // Profile picture with fallback
+  const userAvatarUrl = computed(() => {
+    const photoURL = user.value?.photoURL || userProfile.value?.photoURL;
+    return photoURL || "/default-avatar.png";
+  });
+
   // Initialize auth state listener
   const initializeAuth = () => {
     console.log("🔥 Initializing Firebase Auth...");
@@ -207,6 +213,7 @@ export const useAuthStore = defineStore("auth", () => {
     canCreateArticles,
     canDeleteArticles,
     canAccessAdmin,
+    userAvatarUrl,
 
     // Actions
     initializeAuth,
