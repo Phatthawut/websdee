@@ -64,13 +64,10 @@
           <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto">
               <h1
-                class="text-2xl md:text-4xl font-bold text-white mb-4 leading-tight"
+                class="text-2xl md:text-4xl font-bold text-white mb-6 leading-tight"
               >
                 {{ localizedTitle }}
               </h1>
-              <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
-                {{ localizedExcerpt }}
-              </p>
               <div
                 class="flex flex-wrap items-center gap-4 text-white/80 text-sm"
               >
@@ -247,7 +244,7 @@
                   >
                     {{ getRelatedArticleTitle(relatedArticle) }}
                   </h3>
-                  <p class="text-gray-600 text-sm mb-4">
+                  <p class="text-gray-600 text-sm mb-4 line-clamp-3">
                     {{ getRelatedArticleExcerpt(relatedArticle) }}
                   </p>
                 </div>
@@ -757,6 +754,21 @@ onMounted(() => {
 .article-content th {
   background-color: #f9fafb !important;
   font-weight: 600 !important;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Responsive adjustments */

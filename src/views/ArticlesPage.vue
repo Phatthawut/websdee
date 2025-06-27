@@ -96,18 +96,18 @@
           <article
             v-for="article in filteredArticles"
             :key="article.id"
-            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full"
             @click="goToArticle(article.slug)"
           >
-            <div class="aspect-w-16 aspect-h-9 bg-gray-200">
+            <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex-shrink-0">
               <img
                 :src="article.image"
                 :alt="article.title.en"
                 class="w-full h-48 sm:h-52 md:h-48 object-cover"
               />
             </div>
-            <div class="p-4 md:p-6">
-              <div class="flex items-center justify-between mb-3">
+            <div class="p-4 md:p-6 flex flex-col flex-grow">
+              <div class="flex items-center justify-between mb-3 flex-shrink-0">
                 <span
                   class="inline-block px-2 md:px-3 py-1 text-xs font-medium bg-[#fbc646] text-[#051d40] rounded-full"
                 >
@@ -118,25 +118,29 @@
                 </span>
               </div>
               <h3
-                class="text-xl font-bold text-[#051d40] mb-2 group-hover:text-[#fbc646] transition-colors duration-300"
+                class="text-xl font-bold text-[#051d40] mb-2 group-hover:text-[#fbc646] transition-colors duration-300 line-clamp-2 flex-shrink-0"
               >
                 {{ getLocalizedTitle(article, locale) }}
               </h3>
-              <p class="text-gray-600 text-sm mb-4 leading-relaxed">
+              <p
+                class="text-gray-600 text-sm mb-4 leading-relaxed flex-grow line-clamp-3"
+              >
                 {{ getLocalizedExcerpt(article, locale) }}
               </p>
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center">
                   <img
                     :src="article.author.avatar"
                     :alt="article.author.name"
                     class="w-6 h-6 md:w-8 md:h-8 rounded-full mr-2"
                   />
-                  <span class="text-xs md:text-sm text-gray-600">{{
+                  <span class="text-xs md:text-sm text-gray-600 truncate">{{
                     article.author.name
                   }}</span>
                 </div>
-                <span class="text-xs md:text-sm text-[#051d40] font-medium">
+                <span
+                  class="text-xs md:text-sm text-[#051d40] font-medium flex-shrink-0"
+                >
                   {{ $t("articlesPage.readMore") }} →
                 </span>
               </div>
