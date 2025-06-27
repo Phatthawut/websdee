@@ -114,7 +114,7 @@
                   {{ getCategoryName(article.category) }}
                 </span>
                 <span class="text-xs md:text-sm text-gray-500">
-                  {{ formatDate(article.publishedAt) }}
+                  {{ formatArticleDate(article, locale) }}
                 </span>
               </div>
               <h3
@@ -283,18 +283,6 @@ const canLoadMore = computed(() => {
 });
 
 // Methods using utility functions
-const formatDate = (dateString) => {
-  // For simple date strings, use basic formatting
-  return new Date(dateString).toLocaleDateString(
-    locale.value === "th" ? "th-TH" : "en-US",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  );
-};
-
 const goToArticle = (slug) => {
   router.push(`/articles/${slug}`);
 };
