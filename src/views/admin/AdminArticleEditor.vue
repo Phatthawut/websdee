@@ -146,14 +146,77 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Featured Image URL
+                Featured Image
               </label>
-              <input
-                v-model="article.image"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <div class="space-y-3">
+                <!-- Current Image Preview -->
+                <div v-if="article.image" class="relative">
+                  <img
+                    :src="article.image"
+                    alt="Featured image preview"
+                    class="w-full h-32 object-cover rounded-lg border border-gray-300"
+                  />
+                  <button
+                    type="button"
+                    @click="removeImage"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    title="Remove image"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Image Selection Buttons -->
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    @click="showUnsplashPicker = true"
+                    class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      ></path>
+                    </svg>
+                    Choose from Unsplash
+                  </button>
+                </div>
+
+                <!-- Manual URL Input -->
+                <div>
+                  <input
+                    v-model="article.image"
+                    type="url"
+                    placeholder="Or paste image URL here..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <!-- Image Attribution -->
+                <div v-if="imageAttribution" class="text-xs text-gray-500">
+                  <span v-html="imageAttribution"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -764,6 +827,13 @@
         </div>
       </div>
     </form>
+
+    <!-- Unsplash Image Picker Modal -->
+    <UnsplashImagePicker
+      :is-open="showUnsplashPicker"
+      @close="showUnsplashPicker = false"
+      @select="onImageSelected"
+    />
   </div>
 </template>
 
@@ -788,6 +858,7 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import UnsplashImagePicker from "@/components/UnsplashImagePicker.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -795,6 +866,8 @@ const authStore = useAuthStore();
 
 const saving = ref(false);
 const tagsInput = ref("");
+const showUnsplashPicker = ref(false);
+const imageAttribution = ref("");
 const article = ref({
   title: { en: "", th: "" },
   slug: "",
@@ -811,6 +884,8 @@ const article = ref({
     name: authStore.user?.displayName,
     email: authStore.user?.email,
   },
+  imageAttribution: "",
+  unsplashId: "",
 });
 
 // TipTap Editors
@@ -889,6 +964,21 @@ const removeTag = (tagToRemove) => {
   tagsInput.value = article.value.tags.join(", ");
 };
 
+// Image handling functions
+const removeImage = () => {
+  article.value.image = "";
+  article.value.imageAttribution = "";
+  article.value.unsplashId = "";
+  imageAttribution.value = "";
+};
+
+const onImageSelected = (selectedImage) => {
+  article.value.image = selectedImage.url;
+  article.value.imageAttribution = selectedImage.attributionHtml;
+  article.value.unsplashId = selectedImage.unsplashId;
+  imageAttribution.value = selectedImage.attributionHtml;
+};
+
 const loadArticle = async () => {
   if (!isEditing.value) return;
 
@@ -903,6 +993,11 @@ const loadArticle = async () => {
       // Update tags input
       if (data.tags && Array.isArray(data.tags)) {
         tagsInput.value = data.tags.join(", ");
+      }
+
+      // Update image attribution
+      if (data.imageAttribution) {
+        imageAttribution.value = data.imageAttribution;
       }
 
       // Update editor content
