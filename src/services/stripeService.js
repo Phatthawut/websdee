@@ -1,8 +1,16 @@
 import { loadStripe } from "@stripe/stripe-js";
 
 // Initialize Stripe with your publishable key
-// TODO: Add your Stripe publishable key to environment variables
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+// Log warning if key is missing
+if (!stripePublishableKey) {
+  console.warn(
+    "Stripe publishable key is missing. Payment features will not work."
+  );
+}
+
+// Initialize Stripe
 const stripePromise = stripePublishableKey
   ? loadStripe(stripePublishableKey)
   : null;
@@ -140,32 +148,34 @@ export const processPayment = async (paymentData) => {
 
   const stripe = await stripePromise;
 
+  if (!stripe) {
+    throw new Error(
+      "Failed to initialize Stripe. Please check your publishable key."
+    );
+  }
+
   try {
     const { clientSecret, amount, currency, paymentType, paymentMethodType } =
       paymentData;
 
-    // For PromptPay or other non-card payment methods, redirect to checkout
-    if (paymentMethodType && paymentMethodType !== "card") {
-      // Redirect to Stripe Checkout for PromptPay, bank transfer, etc.
-      const { error } = await stripe.confirmPayment({
-        elements: null,
-        clientSecret,
-        confirmParams: {
-          return_url: window.location.origin + "/payment-success",
-        },
-      });
+    // For all payment methods, use redirectToCheckout
+    const { error } = await stripe.confirmPayment({
+      clientSecret,
+      confirmParams: {
+        // Redirect to payment success page after payment
+        return_url: `${window.location.origin}/payment-success`,
+        payment_method_type: paymentMethodType,
+      },
+    });
 
-      if (error) {
-        throw error;
-      }
-
-      return { paymentIntent: { status: "requires_action" } };
-    } else {
-      // For card payments, use Elements (which should be set up separately)
-      // This is a placeholder - you need to implement card Elements in your UI
-      window.location.href = `https://checkout.stripe.com/pay/${clientSecret}`;
-      return { paymentIntent: { status: "requires_action" } };
+    // This point will only be reached if there is an immediate error
+    // Otherwise, the customer will be redirected to the return_url
+    if (error) {
+      console.error("Payment confirmation error:", error);
+      throw error;
     }
+
+    return { paymentIntent: { status: "requires_action" } };
   } catch (error) {
     console.error("Error processing payment:", error);
     throw error;

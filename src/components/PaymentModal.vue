@@ -665,20 +665,23 @@ const processPayment = async () => {
       orderMetadata
     );
 
-    // Process payment based on method
-    const result = await stripeService.processPayment({
-      clientSecret: paymentIntent.client_secret,
-      amount: finalAmount,
-      currency: "thb",
-      paymentType: paymentType.value,
-      paymentMethodType: selectedPaymentMethod.value,
-    });
+    // Show loading state
+    isProcessing.value = true;
 
-    if (result.error) {
-      emit("payment-error", result.error);
-    } else {
+    try {
+      // Process payment based on method
+      await stripeService.processPayment({
+        clientSecret: paymentIntent.client_secret,
+        amount: finalAmount,
+        currency: "thb",
+        paymentType: paymentType.value,
+        paymentMethodType: selectedPaymentMethod.value,
+      });
+
+      // Note: If successful, Stripe will redirect to the success page
+      // This code will only execute if there's no redirect
       emit("payment-success", {
-        paymentIntent: result.paymentIntent,
+        paymentIntent: { id: paymentIntent.payment_intent_id },
         packageData: props.packageData,
         paymentType: paymentType.value,
         addons: selectedAddons.value,
@@ -686,11 +689,14 @@ const processPayment = async () => {
         customerInfo: customerInfo.value,
         orderMetadata: orderMetadata,
       });
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      emit("payment-error", error);
+      isProcessing.value = false;
     }
   } catch (error) {
     console.error("Payment processing error:", error);
     emit("payment-error", error);
-  } finally {
     isProcessing.value = false;
   }
 };
