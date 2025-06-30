@@ -23,5 +23,16 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Payments collection - admin access only
+    match /payments/{paymentId} {
+      // Public write access for Stripe webhook and payment processing
+      allow create: if true;
+      
+      // Only admins can read and update payments
+      allow read, update, delete: if request.auth != null 
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
   }
 } 
