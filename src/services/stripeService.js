@@ -15,6 +15,29 @@ const stripePromise = stripePublishableKey
   ? loadStripe(stripePublishableKey)
   : null;
 
+// Create Stripe Elements instance for payment
+const createElements = async (stripe, clientSecret) => {
+  // Create a temporary div to mount Elements
+  const tempDiv = document.createElement("div");
+  tempDiv.style.position = "absolute";
+  tempDiv.style.visibility = "hidden";
+  document.body.appendChild(tempDiv);
+
+  // Create Elements instance
+  const elements = stripe.elements({
+    clientSecret,
+    appearance: {
+      theme: "stripe",
+    },
+  });
+
+  // Create and mount the Payment Element
+  const paymentElement = elements.create("payment");
+  paymentElement.mount(tempDiv);
+
+  return elements;
+};
+
 // Check if Stripe is properly configured
 const isStripeConfigured = () => {
   return !!stripePublishableKey;
@@ -158,24 +181,17 @@ export const processPayment = async (paymentData) => {
     const { clientSecret, amount, currency, paymentType, paymentMethodType } =
       paymentData;
 
-    // For all payment methods, use redirectToCheckout
-    const { error } = await stripe.confirmPayment({
-      clientSecret,
-      confirmParams: {
-        // Redirect to payment success page after payment
-        return_url: `${window.location.origin}/payment-success`,
-        // Note: Don't pass payment_method_types here, it's already in the PaymentIntent
-      },
-    });
+    // Use Stripe's redirect flow instead of Elements
+    // This will take the user to Stripe's hosted checkout page
+    window.location.href = `https://checkout.stripe.com/pay/${clientSecret}?return_url=${encodeURIComponent(
+      window.location.origin + "/payment-success"
+    )}`;
 
-    // This point will only be reached if there is an immediate error
-    // Otherwise, the customer will be redirected to the return_url
-    if (error) {
-      console.error("Payment confirmation error:", error);
-      throw error;
-    }
-
+    // Return a placeholder result since we're redirecting
     return { paymentIntent: { status: "requires_action" } };
+
+    // We've already redirected, this code won't execute
+    // But we keep it for completeness
   } catch (error) {
     console.error("Error processing payment:", error);
     throw error;
