@@ -70,7 +70,7 @@
               {{ $t("payment.form.name") }} *
             </label>
             <input
-              v-model="customerInfo.name"
+              v-model="paymentStore.customerInfo.name"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
@@ -86,7 +86,7 @@
               {{ $t("payment.form.email") }} *
             </label>
             <input
-              v-model="customerInfo.email"
+              v-model="paymentStore.customerInfo.email"
               type="email"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
@@ -100,7 +100,7 @@
               {{ $t("payment.form.phone") }} *
             </label>
             <input
-              v-model="customerInfo.phone"
+              v-model="paymentStore.customerInfo.phone"
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
@@ -116,7 +116,7 @@
               {{ $t("payment.form.company") }}
             </label>
             <input
-              v-model="customerInfo.company"
+              v-model="paymentStore.customerInfo.company"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
               :placeholder="
@@ -133,7 +133,7 @@
               {{ $t("payment.form.requirements") }}
             </label>
             <textarea
-              v-model="customerInfo.requirements"
+              v-model="paymentStore.customerInfo.requirements"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
               :placeholder="
@@ -169,7 +169,7 @@
         <div
           class="border-2 rounded-lg p-4 mb-3 cursor-pointer transition-colors"
           :class="
-            paymentType === 'full'
+            paymentStore.paymentType === 'full'
               ? 'border-[#fbc646] bg-yellow-50'
               : 'border-gray-200'
           "
@@ -180,7 +180,7 @@
               <div class="flex items-center">
                 <input
                   type="radio"
-                  :checked="paymentType === 'full'"
+                  :checked="paymentStore.paymentType === 'full'"
                   class="text-[#fbc646] mr-2"
                   readonly
                 />
@@ -205,7 +205,7 @@
         <div
           class="border-2 rounded-lg p-4 mb-3 cursor-pointer transition-colors"
           :class="
-            paymentType === 'deposit'
+            paymentStore.paymentType === 'deposit'
               ? 'border-[#fbc646] bg-yellow-50'
               : 'border-gray-200'
           "
@@ -216,7 +216,7 @@
               <div class="flex items-center">
                 <input
                   type="radio"
-                  :checked="paymentType === 'deposit'"
+                  :checked="paymentStore.paymentType === 'deposit'"
                   class="text-[#fbc646] mr-2"
                   readonly
                 />
@@ -233,11 +233,11 @@
       </div>
 
       <!-- Add-ons Section -->
-      <div v-if="availableAddons.length > 0" class="mb-6">
+      <div v-if="paymentStore.availableAddons.length > 0" class="mb-6">
         <h5 class="font-semibold mb-3">{{ $t("addons.title") }}</h5>
         <div class="space-y-2">
           <div
-            v-for="addon in availableAddons"
+            v-for="addon in paymentStore.availableAddons"
             :key="addon.id"
             class="flex items-center justify-between p-3 border rounded-lg"
           >
@@ -245,7 +245,7 @@
               <input
                 type="checkbox"
                 :id="`addon-${addon.id}`"
-                v-model="selectedAddons"
+                v-model="paymentStore.selectedAddons"
                 :value="addon.id"
                 class="text-[#fbc646] mr-3"
               />
@@ -275,7 +275,7 @@
             :key="method.id"
             class="border-2 rounded-lg p-3 cursor-pointer transition-colors flex items-center"
             :class="
-              selectedPaymentMethod === method.id
+              paymentStore.paymentMethod === method.id
                 ? 'border-[#fbc646] bg-yellow-50'
                 : 'border-gray-200'
             "
@@ -293,7 +293,7 @@
             </div>
             <input
               type="radio"
-              :checked="selectedPaymentMethod === method.id"
+              :checked="paymentStore.paymentMethod === method.id"
               class="text-[#fbc646]"
               readonly
             />
@@ -308,7 +308,7 @@
           <span>{{ locale.value === "th" ? "ยอดรวม" : "Subtotal" }}:</span>
           <span>{{
             stripeService.formatCurrency(
-              baseAmount + addonsTotal,
+              paymentStore.baseAmount + paymentStore.addonsTotal,
               "THB",
               locale.value === "th" ? "th-TH" : "en-US"
             )
@@ -317,7 +317,7 @@
 
         <!-- Discount (if applicable) -->
         <div
-          v-if="paymentType === 'full'"
+          v-if="paymentStore.paymentType === 'full'"
           class="flex justify-between items-center text-sm mb-2 text-green-300"
         >
           <span
@@ -326,7 +326,9 @@
           <span
             >-{{
               stripeService.formatCurrency(
-                Math.round((baseAmount + addonsTotal) * 0.05),
+                Math.round(
+                  (paymentStore.baseAmount + paymentStore.addonsTotal) * 0.05
+                ),
                 "THB",
                 locale.value === "th" ? "th-TH" : "en-US"
               )
@@ -336,7 +338,7 @@
 
         <!-- Subtotal after discount -->
         <div
-          v-if="paymentType === 'full'"
+          v-if="paymentStore.paymentType === 'full'"
           class="flex justify-between items-center text-sm mb-2"
         >
           <span
@@ -346,7 +348,9 @@
           >
           <span>{{
             stripeService.formatCurrency(
-              Math.round((baseAmount + addonsTotal) * 0.95),
+              Math.round(
+                (paymentStore.baseAmount + paymentStore.addonsTotal) * 0.95
+              ),
               "THB",
               locale.value === "th" ? "th-TH" : "en-US"
             )
@@ -362,7 +366,7 @@
           >
           <span>{{
             stripeService.formatCurrency(
-              vatAmount,
+              paymentStore.vatAmount,
               "THB",
               locale.value === "th" ? "th-TH" : "en-US"
             )
@@ -376,7 +380,7 @@
         <div class="flex justify-between items-center">
           <span class="font-semibold">
             {{
-              paymentType === "full"
+              paymentStore.paymentType === "full"
                 ? locale.value === "th"
                   ? "ยอดชำระทั้งหมด"
                   : "Total Payment"
@@ -394,14 +398,18 @@
         <button
           @click="processPayment"
           :disabled="
-            !selectedPaymentMethod || isProcessing || !isStripeConfigured
+            !paymentStore.paymentMethod ||
+            paymentStore.isProcessing ||
+            !isStripeConfigured
           "
           class="w-full bg-[#fbc646] text-[#051d40] font-semibold py-3 px-6 rounded-lg hover:bg-yellow-500 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span v-if="isProcessing">{{ $t("payment.processing") }}</span>
+          <span v-if="paymentStore.isProcessing">{{
+            $t("payment.processing")
+          }}</span>
           <span v-else>
             {{
-              paymentType === "full"
+              paymentStore.paymentType === "full"
                 ? $t("packages.starter.payNow")
                 : $t("packages.starter.payDeposit")
             }}
@@ -419,7 +427,7 @@
       <!-- Stripe Elements will be mounted here for card payments -->
       <div
         id="stripe-card-element"
-        v-show="selectedPaymentMethod === 'card'"
+        v-show="paymentStore.paymentMethod === 'card'"
         class="mt-4"
       ></div>
     </div>
@@ -430,6 +438,7 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import stripeService from "@/services/stripeService";
+import { usePaymentStore } from "@/stores/paymentStore";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -443,20 +452,19 @@ const emit = defineEmits(["close", "payment-success", "payment-error"]);
 
 const { t, locale } = useI18n();
 
-// State
-const paymentType = ref("full");
-const selectedPaymentMethod = ref("promptpay");
-const selectedAddons = ref([]);
-const isProcessing = ref(false);
+// Use payment store
+const paymentStore = usePaymentStore();
 
-// Customer Information
-const customerInfo = ref({
-  name: "",
-  email: "",
-  phone: "",
-  company: "",
-  requirements: "",
-});
+// Watch for package data changes
+watch(
+  () => props.packageData,
+  (newPackage) => {
+    if (newPackage) {
+      paymentStore.setSelectedPackage(newPackage);
+    }
+  },
+  { immediate: true }
+);
 
 // Check Stripe configuration
 const isStripeConfigured = computed(() => stripeService.isStripeConfigured());
@@ -491,8 +499,8 @@ const baseAmount = computed(() => {
 });
 
 const fullPaymentAmount = computed(() => {
-  const discountedBaseAmount = Math.round(baseAmount.value * 0.95); // 5% discount on base
-  const totalWithAddons = discountedBaseAmount + addonsTotal.value;
+  const discountedBaseAmount = Math.round(paymentStore.baseAmount * 0.95); // 5% discount on base
+  const totalWithAddons = discountedBaseAmount + paymentStore.addonsTotal;
   const finalAmountWithVAT =
     stripeService.calculatePriceWithVAT(totalWithAddons);
   return stripeService.formatCurrency(
@@ -503,7 +511,7 @@ const fullPaymentAmount = computed(() => {
 });
 
 const depositAmount = computed(() => {
-  const totalBase = baseAmount.value + addonsTotal.value;
+  const totalBase = paymentStore.baseAmount + paymentStore.addonsTotal;
   const deposit = stripeService.calculateDeposit(totalBase);
   return stripeService.formatCurrency(
     deposit,
@@ -514,7 +522,7 @@ const depositAmount = computed(() => {
 
 const addonsTotal = computed(() => {
   // Calculate total for selected add-ons (base prices)
-  return selectedAddons.value.reduce((total, addonId) => {
+  return paymentStore.selectedAddons.reduce((total, addonId) => {
     const addon = availableAddons.value.find((a) => a.id === addonId);
     if (addon) {
       const price = addon.price.replace(/[฿,\/ปีต่อหน้า]/g, "").split("/")[0];
@@ -526,42 +534,28 @@ const addonsTotal = computed(() => {
 
 // VAT calculations for display
 const vatAmount = computed(() => {
-  let baseTotal = baseAmount.value + addonsTotal.value;
-  if (paymentType.value === "full") {
+  let baseTotal = paymentStore.baseAmount + paymentStore.addonsTotal;
+  if (paymentStore.paymentType === "full") {
     baseTotal = Math.round(baseTotal * 0.95); // Apply 5% discount
   }
   return stripeService.calculateVATAmount(baseTotal);
 });
 
 const totalAmount = computed(() => {
-  let baseTotal = baseAmount.value + addonsTotal.value;
-
-  if (paymentType.value === "full") {
-    baseTotal = Math.round(baseTotal * 0.95); // Apply 5% discount to base
-    const finalAmountWithVAT = stripeService.calculatePriceWithVAT(baseTotal);
-    return stripeService.formatCurrency(
-      finalAmountWithVAT,
-      "THB",
-      locale.value === "th" ? "th-TH" : "en-US"
-    );
-  } else {
-    // For deposit, show 50% of total including VAT
-    const deposit = stripeService.calculateDeposit(baseTotal);
-    return stripeService.formatCurrency(
-      deposit,
-      "THB",
-      locale.value === "th" ? "th-TH" : "en-US"
-    );
-  }
+  return stripeService.formatCurrency(
+    paymentStore.totalAmount,
+    "THB",
+    locale.value === "th" ? "th-TH" : "en-US"
+  );
 });
 
 // Methods
 const selectPaymentType = (type) => {
-  paymentType.value = type;
+  paymentStore.setPaymentType(type);
 };
 
 const selectPaymentMethod = (methodId) => {
-  selectedPaymentMethod.value = methodId;
+  paymentStore.setPaymentMethod(methodId);
 };
 
 const getCurrentMethodName = (method) => {
@@ -574,17 +568,17 @@ const closeModal = () => {
 
 const processPayment = async () => {
   // Validate customer information
-  if (!customerInfo.value.name.trim()) {
+  if (!paymentStore.customerInfo.name.trim()) {
     alert(locale.value === "th" ? "กรุณากรอกชื่อ" : "Please enter your name");
     return;
   }
 
-  if (!customerInfo.value.email.trim()) {
+  if (!paymentStore.customerInfo.email.trim()) {
     alert(locale.value === "th" ? "กรุณากรอกอีเมล" : "Please enter your email");
     return;
   }
 
-  if (!customerInfo.value.phone.trim()) {
+  if (!paymentStore.customerInfo.phone.trim()) {
     alert(
       locale.value === "th"
         ? "กรุณากรอกเบอร์โทรศัพท์"
@@ -604,92 +598,27 @@ const processPayment = async () => {
     return;
   }
 
-  isProcessing.value = true;
-
   try {
-    // Calculate final amount with VAT
-    let baseTotal = baseAmount.value + addonsTotal.value;
-
-    let finalAmount;
-    if (paymentType.value === "full") {
-      // Apply 5% discount to base amount, then add VAT
-      const discountedBase = Math.round(baseTotal * 0.95);
-      finalAmount = stripeService.calculatePriceWithVAT(discountedBase);
-    } else {
-      // For deposit: 50% of total (including VAT)
-      finalAmount = stripeService.calculateDeposit(baseTotal);
-    }
-
-    // Create comprehensive order metadata
-    const orderMetadata = {
-      // Customer Information
-      customer_name: customerInfo.value.name,
-      customer_email: customerInfo.value.email,
-      customer_phone: customerInfo.value.phone,
-      customer_company: customerInfo.value.company || "",
-      project_requirements: customerInfo.value.requirements || "",
-
-      // Order Details
-      package_name: props.packageData.title,
-      package_type: props.packageData.type || "web_development",
-      payment_type: paymentType.value,
-      base_amount: baseAmount.value,
-      addons_total: addonsTotal.value,
-      discount_applied: paymentType.value === "full" ? "5%" : "0%",
-      vat_amount: stripeService.calculateVATAmount(
-        paymentType.value === "full"
-          ? Math.round((baseAmount.value + addonsTotal.value) * 0.95)
-          : baseAmount.value + addonsTotal.value
-      ),
-      final_amount: finalAmount,
-      addons_selected: selectedAddons.value.join(","),
-
-      // Business Information
-      source: "websdee_website",
-      region: "thailand",
-      currency: "THB",
-      order_date: new Date().toISOString(),
-      language: locale.value,
-
-      // Order Status
-      order_status: paymentType.value === "full" ? "paid_full" : "paid_deposit",
-      delivery_status: "pending",
-      project_status: "new",
-    };
-
     // Show loading state
-    isProcessing.value = true;
+    paymentStore.isProcessing = true;
 
-    try {
-      // Process payment using Stripe Checkout Session
-      await stripeService.processPayment({
-        amount: finalAmount,
-        currency: "thb",
-        paymentType: paymentType.value,
-        paymentMethodType: selectedPaymentMethod.value,
-        metadata: orderMetadata,
-      });
+    // Process payment using the store
+    await paymentStore.processPayment();
 
-      // Note: If successful, Stripe will redirect to the success page
-      // This code will only execute if there's no redirect
-      emit("payment-success", {
-        paymentIntent: { id: paymentIntent.payment_intent_id },
-        packageData: props.packageData,
-        paymentType: paymentType.value,
-        addons: selectedAddons.value,
-        totalAmount: finalAmount,
-        customerInfo: customerInfo.value,
-        orderMetadata: orderMetadata,
-      });
-    } catch (error) {
-      console.error("Payment processing error:", error);
-      emit("payment-error", error);
-      isProcessing.value = false;
-    }
+    // Note: If successful, Stripe will redirect to the success page
+    // This code will only execute if there's no redirect
+    emit("payment-success", {
+      packageData: props.packageData,
+      paymentType: paymentStore.paymentType,
+      addons: paymentStore.selectedAddons,
+      totalAmount: paymentStore.totalAmount,
+      customerInfo: paymentStore.customerInfo,
+    });
   } catch (error) {
     console.error("Payment processing error:", error);
     emit("payment-error", error);
-    isProcessing.value = false;
+  } finally {
+    paymentStore.isProcessing = false;
   }
 };
 
@@ -699,10 +628,10 @@ watch(
   (newValue) => {
     if (newValue) {
       // Reset form when modal opens
-      paymentType.value = "full";
-      selectedPaymentMethod.value = "promptpay";
-      selectedAddons.value = [];
-      isProcessing.value = false;
+      paymentStore.setPaymentType("full");
+      paymentStore.setPaymentMethod("promptpay");
+      paymentStore.setSelectedAddons([]);
+      paymentStore.isProcessing = false;
     }
   }
 );

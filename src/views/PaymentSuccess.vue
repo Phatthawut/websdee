@@ -31,46 +31,52 @@
         ></div>
       </div>
 
-      <div v-if="paymentStatus" class="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div
+        v-if="paymentStore.paymentStatus"
+        class="mb-6 p-4 bg-gray-50 rounded-lg"
+      >
         <p class="text-sm font-medium">
           {{ $t("payment.status") }}:
           <span
             :class="
-              paymentStatus === 'succeeded' ? 'text-green-600' : 'text-blue-600'
+              paymentStore.paymentStatus === 'succeeded'
+                ? 'text-green-600'
+                : 'text-blue-600'
             "
           >
             {{
-              paymentStatus === "succeeded"
+              paymentStore.paymentStatus === "succeeded"
                 ? $t("payment.statusSucceeded")
                 : $t("payment.statusProcessing")
             }}
           </span>
         </p>
 
-        <div v-if="paymentDetails" class="mt-4 text-left">
+        <div v-if="paymentStore.currentPaymentDetails" class="mt-4 text-left">
           <p class="text-sm text-gray-700 mb-1">
             <span class="font-medium">{{ $t("payment.form.name") }}:</span>
-            {{ paymentDetails.customer?.name }}
+            {{ paymentStore.currentPaymentDetails.customer?.name }}
           </p>
           <p class="text-sm text-gray-700 mb-1">
             <span class="font-medium">{{ $t("payment.form.email") }}:</span>
-            {{ paymentDetails.customer?.email }}
+            {{ paymentStore.currentPaymentDetails.customer?.email }}
           </p>
           <p class="text-sm text-gray-700 mb-1">
             <span class="font-medium">{{ $t("payment.package") }}:</span>
-            {{ paymentDetails.order?.package_name }}
+            {{ paymentStore.currentPaymentDetails.order?.package_name }}
           </p>
           <p class="text-sm text-gray-700 mb-1">
             <span class="font-medium">{{ $t("payment.amount") }}:</span>
             {{
               formatCurrency(
-                paymentDetails.order?.final_amount || paymentDetails.amount
+                paymentStore.currentPaymentDetails.order?.final_amount ||
+                  paymentStore.currentPaymentDetails.amount
               )
             }}
           </p>
           <p class="text-sm text-gray-700">
             <span class="font-medium">{{ $t("payment.reference") }}:</span>
-            {{ paymentDetails.id }}
+            {{ paymentStore.currentPaymentDetails.id }}
           </p>
         </div>
       </div>
@@ -91,11 +97,11 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { loadStripe } from "@stripe/stripe-js";
+import { usePaymentStore } from "@/stores/paymentStore";
 
 const route = useRoute();
 const isLoading = ref(true);
-const paymentStatus = ref("");
-const paymentDetails = ref(null);
+const paymentStore = usePaymentStore();
 
 // Format currency
 const formatCurrency = (amount) => {
@@ -111,54 +117,6 @@ const formatCurrency = (amount) => {
   }).format(formattedAmount);
 };
 
-// Store payment data in Firestore
-const storePaymentData = async (sessionId, paymentIntentId, orderData) => {
-  try {
-    const apiUrl =
-      "https://asia-southeast1-websdee-blog.cloudfunctions.net/storePaymentData";
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sessionId,
-        paymentIntentId,
-        orderData,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to store payment data");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error storing payment data:", error);
-    return null;
-  }
-};
-
-// Retrieve session details from Stripe
-const retrieveSessionDetails = async (sessionId) => {
-  try {
-    // For security reasons, we need to retrieve session details from our backend
-    const apiUrl = `https://asia-southeast1-websdee-blog.cloudfunctions.net/getSessionDetails?session_id=${sessionId}`;
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error("Failed to retrieve session details");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error retrieving session details:", error);
-    return null;
-  }
-};
-
 onMounted(async () => {
   try {
     // Get the session_id from URL
@@ -168,7 +126,7 @@ onMounted(async () => {
 
     if (sessionId) {
       // For checkout session, we assume it was successful if we got redirected here
-      paymentStatus.value = "succeeded";
+      paymentStore.paymentStatus = "succeeded";
       console.log("Checkout session completed:", sessionId);
 
       // Store basic payment data
@@ -176,6 +134,7 @@ onMounted(async () => {
         status: "succeeded",
         amount: 0, // Will be updated with actual amount if we get session details
         currency: "thb",
+        id: sessionId,
         customer: {
           // These will be populated from session metadata if available
           name: "",
@@ -191,35 +150,20 @@ onMounted(async () => {
 
       // Try to retrieve session details
       try {
-        // Note: This function doesn't exist yet - we'll need to create it
-        // For now, we'll just store the basic data
-        const sessionDetails = await retrieveSessionDetails(sessionId);
+        const sessionDetails = await paymentStore.retrieveSessionDetails(
+          sessionId
+        );
 
         if (sessionDetails) {
-          // Update order data with session details
-          orderData.amount = sessionDetails.amount_total;
-          orderData.currency = sessionDetails.currency;
-          orderData.metadata = sessionDetails.metadata || {};
-
-          // Extract customer info from metadata
-          if (sessionDetails.metadata) {
-            orderData.customer.name = sessionDetails.metadata.customer_name;
-            orderData.customer.email = sessionDetails.metadata.customer_email;
-            orderData.customer.phone = sessionDetails.metadata.customer_phone;
-
-            orderData.order.payment_type = sessionDetails.metadata.payment_type;
-            orderData.order.package_name = sessionDetails.metadata.package_name;
-          }
-
-          // Set payment details for display
-          paymentDetails.value = orderData;
+          // The payment store already updated currentPaymentDetails
+          console.log("Session details retrieved successfully");
         }
       } catch (error) {
         console.error("Error retrieving session details:", error);
       }
 
       // Store payment data in Firestore
-      await storePaymentData(sessionId, null, orderData);
+      await paymentStore.storePaymentData(sessionId, null, orderData);
     } else {
       // Try to get payment intent info as fallback
       const clientSecret = new URLSearchParams(window.location.search).get(
@@ -242,41 +186,32 @@ onMounted(async () => {
         );
 
         if (paymentIntent) {
-          paymentStatus.value = paymentIntent.status;
+          paymentStore.paymentStatus = paymentIntent.status;
 
           // Create order data from payment intent
           const orderData = {
             status: paymentIntent.status,
             amount: paymentIntent.amount,
             currency: paymentIntent.currency,
+            id: paymentIntentId,
             customer: {
               // These will be populated from payment intent metadata if available
-              name: "",
-              email: "",
-              phone: "",
+              name: paymentIntent.metadata?.customer_name || "",
+              email: paymentIntent.metadata?.customer_email || "",
+              phone: paymentIntent.metadata?.customer_phone || "",
             },
             order: {
-              payment_type: "",
-              package_name: "",
+              payment_type: paymentIntent.metadata?.payment_type || "",
+              package_name: paymentIntent.metadata?.package_name || "",
             },
             metadata: paymentIntent.metadata || {},
           };
 
-          // Extract customer info from metadata
-          if (paymentIntent.metadata) {
-            orderData.customer.name = paymentIntent.metadata.customer_name;
-            orderData.customer.email = paymentIntent.metadata.customer_email;
-            orderData.customer.phone = paymentIntent.metadata.customer_phone;
-
-            orderData.order.payment_type = paymentIntent.metadata.payment_type;
-            orderData.order.package_name = paymentIntent.metadata.package_name;
-          }
-
-          // Set payment details for display
-          paymentDetails.value = orderData;
+          // Set current payment details
+          paymentStore.setCurrentPaymentDetails(orderData);
 
           // Store payment data in Firestore
-          await storePaymentData(null, paymentIntentId, orderData);
+          await paymentStore.storePaymentData(null, paymentIntentId, orderData);
         }
       }
     }
