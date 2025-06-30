@@ -210,13 +210,21 @@ export const usePaymentStore = defineStore("payment", () => {
       // For security reasons, we need to retrieve session details from our backend
       const apiUrl = `https://asia-southeast1-websdee-blog.cloudfunctions.net/getSessionDetails?session_id=${sessionId}`;
 
+      console.log("Retrieving session details from:", apiUrl);
+
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
+        console.error(
+          "Failed to retrieve session details:",
+          response.status,
+          response.statusText
+        );
         throw new Error("Failed to retrieve session details");
       }
 
       const sessionDetails = await response.json();
+      console.log("Retrieved session details:", sessionDetails);
 
       // Update current payment details
       if (sessionDetails) {
@@ -233,10 +241,12 @@ export const usePaymentStore = defineStore("payment", () => {
           order: {
             payment_type: sessionDetails.metadata?.payment_type || "",
             package_name: sessionDetails.metadata?.package_name || "",
+            final_amount: sessionDetails.amount_total,
           },
           metadata: sessionDetails.metadata || {},
         };
 
+        console.log("Created order data from session:", orderData);
         currentPaymentDetails.value = orderData;
         return orderData;
       }

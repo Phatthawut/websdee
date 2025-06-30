@@ -129,14 +129,13 @@ onMounted(async () => {
       paymentStore.paymentStatus = "succeeded";
       console.log("Checkout session completed:", sessionId);
 
-      // Store basic payment data
+      // Create a placeholder for payment details
       const orderData = {
         status: "succeeded",
-        amount: 0, // Will be updated with actual amount if we get session details
+        amount: 0,
         currency: "thb",
         id: sessionId,
         customer: {
-          // These will be populated from session metadata if available
           name: "",
           email: "",
           phone: "",
@@ -148,6 +147,9 @@ onMounted(async () => {
         metadata: {},
       };
 
+      // Set initial payment details
+      paymentStore.setCurrentPaymentDetails(orderData);
+
       // Try to retrieve session details
       try {
         const sessionDetails = await paymentStore.retrieveSessionDetails(
@@ -155,15 +157,45 @@ onMounted(async () => {
         );
 
         if (sessionDetails) {
-          // The payment store already updated currentPaymentDetails
-          console.log("Session details retrieved successfully");
+          console.log(
+            "Session details retrieved successfully:",
+            sessionDetails
+          );
+
+          // If we have the session details but the current payment details are still empty,
+          // let's manually update them with the session data
+          if (!paymentStore.currentPaymentDetails?.customer?.name) {
+            const updatedOrderData = {
+              ...orderData,
+              amount: sessionDetails.amount_total || 0,
+              currency: sessionDetails.currency || "thb",
+              customer: {
+                name: sessionDetails.metadata?.customer_name || "",
+                email: sessionDetails.metadata?.customer_email || "",
+                phone: sessionDetails.metadata?.customer_phone || "",
+              },
+              order: {
+                payment_type: sessionDetails.metadata?.payment_type || "",
+                package_name: sessionDetails.metadata?.package_name || "",
+                final_amount: sessionDetails.amount_total || 0,
+              },
+              metadata: sessionDetails.metadata || {},
+            };
+
+            // Update the payment details
+            paymentStore.setCurrentPaymentDetails(updatedOrderData);
+          }
         }
       } catch (error) {
         console.error("Error retrieving session details:", error);
       }
 
       // Store payment data in Firestore
-      await paymentStore.storePaymentData(sessionId, null, orderData);
+      await paymentStore.storePaymentData(
+        sessionId,
+        null,
+        paymentStore.currentPaymentDetails
+      );
     } else {
       // Try to get payment intent info as fallback
       const clientSecret = new URLSearchParams(window.location.search).get(
@@ -195,7 +227,6 @@ onMounted(async () => {
             currency: paymentIntent.currency,
             id: paymentIntentId,
             customer: {
-              // These will be populated from payment intent metadata if available
               name: paymentIntent.metadata?.customer_name || "",
               email: paymentIntent.metadata?.customer_email || "",
               phone: paymentIntent.metadata?.customer_phone || "",
@@ -203,6 +234,7 @@ onMounted(async () => {
             order: {
               payment_type: paymentIntent.metadata?.payment_type || "",
               package_name: paymentIntent.metadata?.package_name || "",
+              final_amount: paymentIntent.amount,
             },
             metadata: paymentIntent.metadata || {},
           };
