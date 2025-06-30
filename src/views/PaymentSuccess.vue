@@ -76,7 +76,7 @@
           </p>
           <p class="text-sm text-gray-700">
             <span class="font-medium">{{ $t("payment.reference") }}:</span>
-            {{ paymentStore.currentPaymentDetails.id }}
+            {{ getShortReferenceId() }}
           </p>
         </div>
       </div>
@@ -102,6 +102,28 @@ import { usePaymentStore } from "@/stores/paymentStore";
 const route = useRoute();
 const isLoading = ref(true);
 const paymentStore = usePaymentStore();
+
+// Generate a short reference ID for display
+function getShortReferenceId() {
+  const details = paymentStore.currentPaymentDetails;
+  if (!details) return "";
+
+  // If we already have a short reference ID, use it
+  if (details.shortReferenceId) {
+    return details.shortReferenceId;
+  }
+
+  // Otherwise, generate one from the full ID
+  const fullId = details.id;
+  if (!fullId) return "";
+
+  // Take first 4 characters and last 6 characters
+  const prefix = fullId.substring(0, 4);
+  const suffix = fullId.substring(fullId.length - 6);
+
+  // Create a reference code in format XXX-XXXXXX
+  return `${prefix}-${suffix}`;
+}
 
 // Format currency
 const formatCurrency = (amount) => {
@@ -135,6 +157,7 @@ onMounted(async () => {
         amount: 0,
         currency: "thb",
         id: sessionId,
+        shortReferenceId: getShortReferenceId({ id: sessionId }),
         customer: {
           name: "",
           email: "",
@@ -226,6 +249,7 @@ onMounted(async () => {
             amount: paymentIntent.amount,
             currency: paymentIntent.currency,
             id: paymentIntentId,
+            shortReferenceId: getShortReferenceId({ id: paymentIntentId }),
             customer: {
               name: paymentIntent.metadata?.customer_name || "",
               email: paymentIntent.metadata?.customer_email || "",

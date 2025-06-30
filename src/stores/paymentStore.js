@@ -205,6 +205,18 @@ export const usePaymentStore = defineStore("payment", () => {
     }
   }
 
+  // Generate a shorter reference ID from Stripe session ID or payment intent ID
+  function generateShortReferenceId(fullId) {
+    if (!fullId) return "";
+
+    // Take first 4 characters and last 6 characters
+    const prefix = fullId.substring(0, 4);
+    const suffix = fullId.substring(fullId.length - 6);
+
+    // Create a reference code in format XXX-XXXXXX
+    return `${prefix}-${suffix}`;
+  }
+
   async function retrieveSessionDetails(sessionId) {
     try {
       // For security reasons, we need to retrieve session details from our backend
@@ -233,6 +245,7 @@ export const usePaymentStore = defineStore("payment", () => {
           amount: sessionDetails.amount_total,
           currency: sessionDetails.currency,
           id: sessionId,
+          shortReferenceId: generateShortReferenceId(sessionId),
           customer: {
             name: sessionDetails.metadata?.customer_name || "",
             email: sessionDetails.metadata?.customer_email || "",
