@@ -658,10 +658,16 @@ const processPayment = async () => {
     };
 
     // Create payment intent with detailed metadata
+    // For Thai payment methods, we need to specify the payment method types
+    const paymentMethodTypes = [selectedPaymentMethod.value];
+
+    // Log the payment method being used
+    console.log(`Using payment method: ${selectedPaymentMethod.value}`);
+
     const paymentIntent = await stripeService.createPaymentIntent(
       finalAmount,
       "thb",
-      [selectedPaymentMethod.value],
+      paymentMethodTypes,
       orderMetadata
     );
 

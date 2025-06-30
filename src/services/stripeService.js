@@ -164,7 +164,7 @@ export const processPayment = async (paymentData) => {
       confirmParams: {
         // Redirect to payment success page after payment
         return_url: `${window.location.origin}/payment-success`,
-        payment_method_type: paymentMethodType,
+        // Note: Don't pass payment_method_types here, it's already in the PaymentIntent
       },
     });
 
