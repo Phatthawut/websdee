@@ -285,3 +285,79 @@ exports.testStripe = onRequest(
     });
   })
 );
+
+// Create Checkout Session
+exports.createCheckoutSession = onRequest(
+  regionConfig,
+  corsWrapper(async (req, res) => {
+    const stripe = require("stripe")(stripeSecretKey.value());
+
+    logger.info("Creating checkout session", { body: req.body });
+
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const {
+        amount,
+        currency,
+        payment_method_types,
+        metadata,
+        success_url,
+        cancel_url,
+      } = req.body;
+
+      // Validate required fields
+      if (!amount || !currency || !success_url) {
+        return res.status(400).json({
+          error: "Missing required fields: amount, currency, success_url",
+        });
+      }
+
+      // Create checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: payment_method_types || ["card", "promptpay"],
+        line_items: [
+          {
+            price_data: {
+              currency: currency.toLowerCase(),
+              product_data: {
+                name: metadata.package_name || "Website Package",
+                description: `${
+                  metadata.payment_type === "full"
+                    ? "Full Payment"
+                    : "50% Deposit"
+                } for ${metadata.package_name || "Website Package"}`,
+                metadata: metadata,
+              },
+              unit_amount: amount * 100, // Stripe uses cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: success_url,
+        cancel_url: cancel_url || success_url,
+        metadata: metadata,
+      });
+
+      logger.info("Checkout session created", {
+        sessionId: session.id,
+        amount: amount,
+        currency: currency,
+      });
+
+      res.json({
+        sessionId: session.id,
+        url: session.url,
+      });
+    } catch (error) {
+      logger.error("Error creating checkout session", error);
+      res.status(500).json({
+        error: "Failed to create checkout session",
+        message: error.message,
+      });
+    }
+  })
+);
