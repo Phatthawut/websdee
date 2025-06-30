@@ -119,6 +119,30 @@
             </svg>
             Settings
           </router-link>
+
+          <router-link
+            to="/admin/payments"
+            class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+            :class="{
+              'bg-blue-50 text-blue-700 border-r-2 border-blue-700':
+                $route.name === 'AdminPayments',
+            }"
+          >
+            <svg
+              class="w-5 h-5 mr-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+              ></path>
+            </svg>
+            Payments
+          </router-link>
         </div>
       </nav>
     </div>
@@ -220,6 +244,7 @@ const pageTitle = computed(() => {
     AdminArticles: "Articles",
     AdminUsers: "Users",
     AdminSettings: "Settings",
+    AdminPayments: "Payments",
   };
   return titles[route.name] || "Admin Panel";
 });
@@ -230,6 +255,7 @@ const pageDescription = computed(() => {
     AdminArticles: "Manage your blog articles and content",
     AdminUsers: "Manage user roles and permissions",
     AdminSettings: "Configure your website settings",
+    AdminPayments: "View and manage customer payments",
   };
   return descriptions[route.name] || "WebsDee Admin Panel";
 });

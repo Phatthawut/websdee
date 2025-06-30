@@ -121,6 +121,11 @@ const routes = [
         name: "AdminSettings",
         component: () => import("@/views/admin/AdminSettings.vue"),
       },
+      {
+        path: "payments",
+        name: "AdminPayments",
+        component: () => import("@/views/admin/AdminPayments.vue"),
+      },
     ],
   },
 ];
