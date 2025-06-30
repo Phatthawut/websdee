@@ -44,7 +44,7 @@ const isStripeConfigured = () => {
 };
 
 // VAT rate for Thailand
-const VAT_RATE = 0.07;
+const VAT_RATE = 0; // Disabled VAT for now
 
 // Exchange rate USD to THB (update regularly or use API)
 const USD_TO_THB = 35;
@@ -189,8 +189,8 @@ export const createCheckoutSession = async (
         currency: currency.toLowerCase(),
         payment_method_types: paymentMethodTypes,
         metadata: {
-          vat_included: "true",
-          vat_rate: VAT_RATE.toString(),
+          // VAT disabled
+          vat_included: "false",
           ...metadata,
         },
         success_url: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
@@ -310,12 +310,14 @@ export const formatCurrency = (amount, currency = "THB", locale = "th-TH") => {
 
 // Calculate price with VAT (7% Thai VAT)
 export const calculatePriceWithVAT = (basePrice) => {
-  return Math.round(basePrice * (1 + VAT_RATE));
+  // VAT disabled, return base price
+  return basePrice;
 };
 
 // Calculate VAT amount
 export const calculateVATAmount = (basePrice) => {
-  return Math.round(basePrice * VAT_RATE);
+  // VAT disabled, return 0
+  return 0;
 };
 
 // Calculate deposit amount (50% of total including VAT)

@@ -357,7 +357,8 @@
           }}</span>
         </div>
 
-        <!-- VAT -->
+        <!-- VAT (hidden since VAT is disabled) -->
+        <!--
         <div class="flex justify-between items-center text-sm mb-2">
           <span
             >{{
@@ -372,6 +373,7 @@
             )
           }}</span>
         </div>
+        -->
 
         <!-- Divider -->
         <div class="border-t border-gray-400 my-2"></div>

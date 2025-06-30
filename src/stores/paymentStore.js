@@ -42,11 +42,8 @@ export const usePaymentStore = defineStore("payment", () => {
   });
 
   const vatAmount = computed(() => {
-    let baseTotal = baseAmount.value + addonsTotal.value;
-    if (paymentType.value === "full") {
-      baseTotal = Math.round(baseTotal * 0.95); // Apply 5% discount
-    }
-    return stripeService.calculateVATAmount(baseTotal);
+    // VAT is disabled, return 0
+    return 0;
   });
 
   const totalAmount = computed(() => {
@@ -55,12 +52,11 @@ export const usePaymentStore = defineStore("payment", () => {
     // Apply discount for full payment
     if (paymentType.value === "full") {
       baseTotal = Math.round(baseTotal * 0.95); // 5% discount
-      const finalAmountWithVAT = stripeService.calculatePriceWithVAT(baseTotal);
-      return finalAmountWithVAT;
+      // No VAT calculation since VAT is disabled
+      return baseTotal;
     } else {
-      // For deposit, show 50% of total including VAT
-      const deposit = stripeService.calculateDeposit(baseTotal);
-      return deposit;
+      // For deposit, show 50% of total (no VAT)
+      return Math.round(baseTotal * 0.5);
     }
   });
 
