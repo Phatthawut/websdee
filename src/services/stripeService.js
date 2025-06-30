@@ -161,6 +161,54 @@ export const createSubscription = async (priceId, customerId) => {
   }
 };
 
+// Create checkout session for a more reliable payment flow
+export const createCheckoutSession = async (
+  amount,
+  currency = "thb",
+  paymentMethodTypes = ["card", "promptpay"],
+  metadata = {}
+) => {
+  if (!isStripeConfigured()) {
+    throw new Error(
+      "Stripe is not configured. Please set VITE_STRIPE_PUBLISHABLE_KEY environment variable."
+    );
+  }
+
+  try {
+    // Use Firebase Functions URL for production or localhost for emulator
+    const apiUrl =
+      "https://asia-southeast1-websdee-blog.cloudfunctions.net/createCheckoutSession";
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: amount, // The function will multiply by 100
+        currency: currency.toLowerCase(),
+        payment_method_types: paymentMethodTypes,
+        metadata: {
+          vat_included: "true",
+          vat_rate: VAT_RATE.toString(),
+          ...metadata,
+        },
+        success_url: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${window.location.origin}/`,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create checkout session");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+    throw error;
+  }
+};
+
 // Process payment with Stripe
 export const processPayment = async (paymentData) => {
   if (!isStripeConfigured()) {
@@ -169,23 +217,20 @@ export const processPayment = async (paymentData) => {
     );
   }
 
-  const stripe = await stripePromise;
-
-  if (!stripe) {
-    throw new Error(
-      "Failed to initialize Stripe. Please check your publishable key."
-    );
-  }
-
   try {
-    const { clientSecret, amount, currency, paymentType, paymentMethodType } =
+    const { amount, currency, paymentType, paymentMethodType, metadata } =
       paymentData;
 
-    // Use Stripe's redirect flow instead of Elements
-    // This will take the user to Stripe's hosted checkout page
-    window.location.href = `https://checkout.stripe.com/pay/${clientSecret}?return_url=${encodeURIComponent(
-      window.location.origin + "/payment-success"
-    )}`;
+    // Create a checkout session and redirect to Stripe Checkout
+    const session = await createCheckoutSession(
+      amount,
+      currency,
+      [paymentMethodType],
+      metadata
+    );
+
+    // Redirect to the Stripe Checkout page
+    window.location.href = session.url;
 
     // Return a placeholder result since we're redirecting
     return { paymentIntent: { status: "requires_action" } };

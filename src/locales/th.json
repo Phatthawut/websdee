@@ -174,7 +174,10 @@
     "status": "สถานะการชำระเงิน",
     "statusSucceeded": "สำเร็จแล้ว",
     "statusProcessing": "กำลังดำเนินการ",
-    "returnHome": "กลับไปยังหน้าแรก"
+    "returnHome": "กลับไปยังหน้าแรก",
+    "package": "แพ็กเกจ",
+    "amount": "จำนวนเงิน",
+    "reference": "หมายเลขอ้างอิง"
   },
   "cancel": "ยกเลิก",
   "addons": {

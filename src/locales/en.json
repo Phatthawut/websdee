@@ -173,7 +173,10 @@
     "status": "Payment Status",
     "statusSucceeded": "Completed",
     "statusProcessing": "Processing",
-    "returnHome": "Return to Homepage"
+    "returnHome": "Return to Homepage",
+    "package": "Package",
+    "amount": "Amount",
+    "reference": "Reference ID"
   },
   "cancel": "Cancel",
   "addons": {

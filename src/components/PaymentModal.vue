@@ -657,31 +657,17 @@ const processPayment = async () => {
       project_status: "new",
     };
 
-    // Create payment intent with detailed metadata
-    // For Thai payment methods, we need to specify the payment method types
-    const paymentMethodTypes = [selectedPaymentMethod.value];
-
-    // Log the payment method being used
-    console.log(`Using payment method: ${selectedPaymentMethod.value}`);
-
-    const paymentIntent = await stripeService.createPaymentIntent(
-      finalAmount,
-      "thb",
-      paymentMethodTypes,
-      orderMetadata
-    );
-
     // Show loading state
     isProcessing.value = true;
 
     try {
-      // Process payment based on method
+      // Process payment using Stripe Checkout Session
       await stripeService.processPayment({
-        clientSecret: paymentIntent.client_secret,
         amount: finalAmount,
         currency: "thb",
         paymentType: paymentType.value,
         paymentMethodType: selectedPaymentMethod.value,
+        metadata: orderMetadata,
       });
 
       // Note: If successful, Stripe will redirect to the success page

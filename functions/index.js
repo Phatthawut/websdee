@@ -23,16 +23,42 @@ const regionConfig = {
   invoker: "public", // Allow unauthenticated access
 };
 
-// CORS wrapper function with direct header setting
+// Define allowed origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5174",
+  "https://websdee.com",
+  "https://www.websdee.com",
+];
+
+// CORS wrapper function with origin checking
 const corsWrapper = (fn) => {
   return (req, res) => {
-    // Always set CORS headers for all responses
-    res.set("Access-Control-Allow-Origin", "*");
+    const origin = req.headers.origin;
+
+    // Check if origin is allowed
+    if (origin && allowedOrigins.includes(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+    } else if (!origin) {
+      // Allow requests with no origin (like curl or Stripe webhooks)
+      res.set("Access-Control-Allow-Origin", "*");
+    } else {
+      // For non-OPTIONS requests with disallowed origin, continue but don't set CORS headers
+      // For OPTIONS requests with disallowed origin, reject with 403
+      if (req.method === "OPTIONS") {
+        res.status(403).send("Forbidden by CORS policy");
+        return;
+      }
+    }
+
+    // Set other CORS headers
     res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.set(
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, Stripe-Signature"
     );
+    res.set("Access-Control-Allow-Credentials", "true");
     res.set("Access-Control-Max-Age", "3600");
 
     // Handle preflight OPTIONS request
@@ -43,6 +69,14 @@ const corsWrapper = (fn) => {
     return fn(req, res);
   };
 };
+
+// Initialize Firestore
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+
+// Initialize Firebase Admin
+const admin = initializeApp();
+const db = getFirestore();
 
 // Create Payment Intent
 exports.createPaymentIntent = onRequest(
@@ -250,27 +284,231 @@ exports.stripeWebhook = onRequest(
         logger.info("Payment intent succeeded", {
           paymentIntentId: paymentIntent.id,
         });
-        // Handle successful payment
+
+        // Store payment data in Firestore
+        try {
+          await storePaymentData(paymentIntent, "payment_intent");
+          logger.info("Payment data stored successfully", {
+            paymentIntentId: paymentIntent.id,
+          });
+        } catch (error) {
+          logger.error("Error storing payment data", error);
+        }
         break;
+
+      case "checkout.session.completed":
+        const session = event.data.object;
+        logger.info("Checkout session completed", {
+          sessionId: session.id,
+        });
+
+        // Store payment data in Firestore
+        try {
+          await storePaymentData(session, "checkout_session");
+          logger.info("Checkout session data stored successfully", {
+            sessionId: session.id,
+          });
+        } catch (error) {
+          logger.error("Error storing checkout session data", error);
+        }
+        break;
+
       case "payment_intent.payment_failed":
         const failedPaymentIntent = event.data.object;
         logger.info("Payment intent failed", {
           paymentIntentId: failedPaymentIntent.id,
         });
-        // Handle failed payment
         break;
+
       case "customer.subscription.created":
         const subscription = event.data.object;
         logger.info("Subscription created", {
           subscriptionId: subscription.id,
         });
-        // Handle subscription creation
         break;
+
       default:
         logger.info(`Unhandled event type: ${event.type}`);
     }
 
     res.json({ received: true });
+  })
+);
+
+// Helper function to store payment data in Firestore
+async function storePaymentData(paymentData, type) {
+  try {
+    // Extract customer information from metadata
+    const metadata = paymentData.metadata || {};
+
+    // Create a document in the payments collection
+    const paymentRef = db.collection("payments").doc(paymentData.id);
+
+    // Create payment record
+    const paymentRecord = {
+      id: paymentData.id,
+      type: type,
+      amount: paymentData.amount,
+      currency: paymentData.currency,
+      status: paymentData.status,
+      payment_method:
+        paymentData.payment_method_types || paymentData.payment_method,
+      created: new Date(paymentData.created * 1000),
+      metadata: metadata,
+
+      // Customer information
+      customer: {
+        name: metadata.customer_name,
+        email: metadata.customer_email,
+        phone: metadata.customer_phone,
+        company: metadata.customer_company,
+      },
+
+      // Order information
+      order: {
+        package_name: metadata.package_name,
+        package_type: metadata.package_type,
+        payment_type: metadata.payment_type,
+        base_amount: parseInt(metadata.base_amount) || 0,
+        addons_total: parseInt(metadata.addons_total) || 0,
+        discount_applied: metadata.discount_applied,
+        vat_amount: parseInt(metadata.vat_amount) || 0,
+        final_amount: parseInt(metadata.final_amount) || paymentData.amount,
+        addons_selected: metadata.addons_selected,
+        project_requirements: metadata.project_requirements,
+        order_status: metadata.order_status,
+        delivery_status: metadata.delivery_status,
+        project_status: metadata.project_status,
+      },
+
+      // Updated timestamp
+      updated_at: new Date(),
+    };
+
+    // Save to Firestore
+    await paymentRef.set(paymentRecord);
+
+    return paymentRecord;
+  } catch (error) {
+    logger.error("Error storing payment data", error);
+    throw error;
+  }
+}
+
+// Store Payment Data (can be called directly from client)
+exports.storePaymentData = onRequest(
+  regionConfig,
+  corsWrapper(async (req, res) => {
+    logger.info("Storing payment data", { body: req.body });
+
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const { sessionId, paymentIntentId, orderData } = req.body;
+
+      if (!sessionId && !paymentIntentId) {
+        return res.status(400).json({
+          error: "Missing required field: sessionId or paymentIntentId",
+        });
+      }
+
+      if (!orderData) {
+        return res.status(400).json({
+          error: "Missing required field: orderData",
+        });
+      }
+
+      // Use session ID or payment intent ID as document ID
+      const docId = sessionId || paymentIntentId;
+
+      // Store in Firestore
+      const paymentRef = db.collection("payments").doc(docId);
+
+      // Create payment record with client-side data
+      const paymentRecord = {
+        id: docId,
+        type: sessionId ? "checkout_session" : "payment_intent",
+        ...orderData,
+        created_at: new Date(),
+        updated_at: new Date(),
+        source: "client_submission",
+      };
+
+      // Save to Firestore
+      await paymentRef.set(paymentRecord, { merge: true });
+
+      logger.info("Payment data stored successfully", { docId });
+
+      res.json({
+        success: true,
+        message: "Payment data stored successfully",
+        paymentId: docId,
+      });
+    } catch (error) {
+      logger.error("Error storing payment data", error);
+      res.status(500).json({
+        error: "Failed to store payment data",
+        message: error.message,
+      });
+    }
+  })
+);
+
+// Get Session Details
+exports.getSessionDetails = onRequest(
+  regionConfig,
+  corsWrapper(async (req, res) => {
+    logger.info("Getting session details", { query: req.query });
+
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const sessionId = req.query.session_id;
+
+      if (!sessionId) {
+        return res.status(400).json({
+          error: "Missing required query parameter: session_id",
+        });
+      }
+
+      // Initialize Stripe
+      const stripe = require("stripe")(stripeSecretKey.value());
+
+      // Retrieve session with line items and customer details
+      const session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ["line_items", "customer"],
+      });
+
+      // Check if session exists in Firestore
+      const paymentRef = db.collection("payments").doc(sessionId);
+      const paymentDoc = await paymentRef.get();
+
+      // If session exists in Firestore, return the stored data
+      if (paymentDoc.exists) {
+        const paymentData = paymentDoc.data();
+
+        // Merge Stripe session data with stored data
+        const responseData = {
+          ...session,
+          stored_data: paymentData,
+        };
+
+        res.json(responseData);
+      } else {
+        // If session doesn't exist in Firestore, return just the Stripe data
+        res.json(session);
+      }
+    } catch (error) {
+      logger.error("Error getting session details", error);
+      res.status(500).json({
+        error: "Failed to get session details",
+        message: error.message,
+      });
+    }
   })
 );
 
