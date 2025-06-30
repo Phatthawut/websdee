@@ -31,6 +31,11 @@
       <PackagesSection />
     </div>
 
+    <!-- Maintenance Plans Section - Hidden for now -->
+    <!-- <div class="reveal-section">
+      <MaintenancePlans />
+    </div> -->
+
     <!-- Testimonials Section -->
     <div class="reveal-section">
       <TestimonialsSection />
@@ -62,6 +67,7 @@ import HeroSection from "@/components/HeroSection.vue";
 import WhyChooseSection from "@/components/WhyChooseSection.vue";
 import ServicesSection from "@/components/ServicesSection.vue";
 import PackagesSection from "@/components/PackagesSection.vue";
+import MaintenancePlans from "@/components/MaintenancePlans.vue";
 import TestimonialsSection from "@/components/TestimonialsSection.vue";
 import FAQSection from "@/components/FAQSection.vue";
 import WithCTA from "@/components/WithCTA.vue";

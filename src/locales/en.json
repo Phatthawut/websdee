@@ -84,9 +84,11 @@
     "subtitle": "Choose the right package for your business",
     "customMessage": "Need a custom package? Contact us for a tailored solution.",
     "recommended": "Recommended",
+    "vatIncluded": "VAT not included",
     "starter": {
       "title": "Starter",
-      "price": "$99",
+      "price": "฿3,000",
+      "priceUSD": "$99",
       "subtitle": "Perfect for getting started online.",
       "description": "For individuals, freelancers, or small local businesses. Focused on clarity, speed, and affordability.",
       "features": [
@@ -96,11 +98,14 @@
         "Free basic hosting (1st year)",
         "Delivery in 5–7 days"
       ],
-      "cta": "Get Started"
+      "cta": "Get Started",
+      "payNow": "Pay Now",
+      "payDeposit": "Pay 50% Deposit"
     },
     "ecommerce": {
       "title": "E-Commerce",
-      "price": "$145",
+      "price": "฿4,500",
+      "priceUSD": "$145",
       "subtitle": "Sell your products online with ease.",
       "description": "For online shops, handmade businesses, or boutique sellers. Everything you need to start selling right away.",
       "features": [
@@ -113,11 +118,14 @@
         "Free basic hosting (1st year)",
         "Delivery in 7–10 days"
       ],
-      "cta": "Get Started"
+      "cta": "Get Started",
+      "payNow": "Pay Now",
+      "payDeposit": "Pay 50% Deposit"
     },
     "premium": {
       "title": "Premium",
-      "price": "$455",
+      "price": "฿15,900",
+      "priceUSD": "$455",
       "subtitle": "Tailored to your brand. Built to impress.",
       "description": "For brands who want a unique online presence. Best for startups, professionals, and businesses that need something different.",
       "features": [
@@ -130,7 +138,95 @@
         "Dedicated project manager",
         "Delivery in 10–15 business days"
       ],
-      "cta": "Get Started"
+      "cta": "Get Started",
+      "payNow": "Pay Now",
+      "payDeposit": "Pay 50% Deposit"
+    }
+  },
+  "payment": {
+    "title": "Payment Options",
+    "customerInfo": "Customer Information",
+    "total": "Total",
+    "methods": {
+      "promptpay": "PromptPay",
+      "card": "Credit/Debit Card",
+      "bankTransfer": "Bank Transfer"
+    },
+    "options": {
+      "full": "Pay Full Amount",
+      "deposit": "Pay 50% Deposit",
+      "fullDiscount": "5% discount for full payment",
+      "depositNote": "Remaining 50% (including VAT) due before delivery"
+    },
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "company": "Company Name (Optional)",
+      "requirements": "Project Requirements"
+    },
+    "processing": "Processing payment...",
+    "success": "Payment successful!",
+    "error": "Payment failed. Please try again."
+  },
+  "cancel": "Cancel",
+  "addons": {
+    "title": "Add-on Services",
+    "domain": {
+      "title": "Domain Registration",
+      "price": "฿450/year",
+      "description": "Get your custom domain (.com, .co.th)"
+    },
+    "extraPage": {
+      "title": "Extra Page",
+      "price": "฿590 each",
+      "description": "Additional page for your website"
+    },
+    "ssl": {
+      "title": "Premium SSL Certificate",
+      "price": "฿990/year",
+      "description": "Enhanced security for your website"
+    },
+    "logoDesign": {
+      "title": "Logo Design",
+      "price": "฿1,990",
+      "description": "Professional logo design for your brand"
+    }
+  },
+  "maintenance": {
+    "title": "Website Maintenance Plans",
+    "subtitle": "Keep your website updated and secure",
+    "basic": {
+      "title": "Basic",
+      "price": "฿990/month",
+      "features": [
+        "Security updates",
+        "Backup management",
+        "Uptime monitoring",
+        "Basic support"
+      ]
+    },
+    "pro": {
+      "title": "Professional",
+      "price": "฿1,990/month",
+      "features": [
+        "Everything in Basic",
+        "Content updates",
+        "SEO monitoring",
+        "Performance optimization",
+        "Priority support"
+      ]
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "price": "฿3,490/month",
+      "features": [
+        "Everything in Pro",
+        "Custom development",
+        "Advanced analytics",
+        "24/7 support",
+        "Dedicated account manager"
+      ]
     }
   },
   "future": {

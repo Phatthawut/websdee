@@ -47,12 +47,20 @@
               </div>
             </li>
           </ul>
-          <router-link
-            to="/contact"
-            class="w-full block text-center bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
-          >
-            {{ $t("packages.starter.cta") }}
-          </router-link>
+          <div class="space-y-2">
+            <button
+              @click="openPaymentModal('starter', 'full')"
+              class="w-full bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
+            >
+              {{ $t("packages.starter.payNow") }}
+            </button>
+            <button
+              @click="openPaymentModal('starter', 'deposit')"
+              class="w-full border-2 border-[#051d40] text-[#051d40] py-3 rounded-md font-medium hover:bg-[#051d40] hover:text-white transition duration-300"
+            >
+              {{ $t("packages.starter.payDeposit") }}
+            </button>
+          </div>
         </div>
 
         <!-- E-commerce Package -->
@@ -95,12 +103,20 @@
               </div>
             </li>
           </ul>
-          <router-link
-            to="/contact"
-            class="w-full block text-center bg-[#fbc646] text-[#051d40] py-3 rounded-md font-medium hover:bg-yellow-400 transition duration-300"
-          >
-            {{ $t("packages.ecommerce.cta") }}
-          </router-link>
+          <div class="space-y-2">
+            <button
+              @click="openPaymentModal('ecommerce', 'full')"
+              class="w-full bg-[#fbc646] text-[#051d40] py-3 rounded-md font-medium hover:bg-yellow-400 transition duration-300"
+            >
+              {{ $t("packages.ecommerce.payNow") }}
+            </button>
+            <button
+              @click="openPaymentModal('ecommerce', 'deposit')"
+              class="w-full border-2 border-[#fbc646] text-[#fbc646] py-3 rounded-md font-medium hover:bg-[#fbc646] hover:text-[#051d40] transition duration-300"
+            >
+              {{ $t("packages.ecommerce.payDeposit") }}
+            </button>
+          </div>
         </div>
 
         <!-- Premium Package -->
@@ -138,12 +154,20 @@
               </div>
             </li>
           </ul>
-          <router-link
-            to="/contact"
-            class="w-full block text-center bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
-          >
-            {{ $t("packages.premium.cta") }}
-          </router-link>
+          <div class="space-y-2">
+            <button
+              @click="openPaymentModal('premium', 'full')"
+              class="w-full bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
+            >
+              {{ $t("packages.premium.payNow") }}
+            </button>
+            <button
+              @click="openPaymentModal('premium', 'deposit')"
+              class="w-full border-2 border-[#051d40] text-[#051d40] py-3 rounded-md font-medium hover:bg-[#051d40] hover:text-white transition duration-300"
+            >
+              {{ $t("packages.premium.payDeposit") }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -162,14 +186,55 @@
         </router-link>
       </div>
     </div>
+
+    <!-- Payment Modal -->
+    <PaymentModal
+      v-if="selectedPackage"
+      :is-open="isPaymentModalOpen"
+      :package-data="selectedPackage"
+      @close="closePaymentModal"
+      @payment-success="handlePaymentSuccess"
+      @payment-error="handlePaymentError"
+    />
   </section>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import PaymentModal from "./PaymentModal.vue";
 
 const { t, locale, messages } = useI18n();
+
+// Payment modal state
+const isPaymentModalOpen = ref(false);
+const selectedPackage = ref(null);
+const selectedPaymentType = ref("full");
+
+// Package data
+const packageData = computed(() => ({
+  starter: {
+    id: "starter",
+    title: t("packages.starter.title"),
+    price: t("packages.starter.price"),
+    priceUSD: t("packages.starter.priceUSD"),
+    features: starterFeatures.value,
+  },
+  ecommerce: {
+    id: "ecommerce",
+    title: t("packages.ecommerce.title"),
+    price: t("packages.ecommerce.price"),
+    priceUSD: t("packages.ecommerce.priceUSD"),
+    features: ecommerceFeatures.value,
+  },
+  premium: {
+    id: "premium",
+    title: t("packages.premium.title"),
+    price: t("packages.premium.price"),
+    priceUSD: t("packages.premium.priceUSD"),
+    features: premiumFeatures.value,
+  },
+}));
 
 const starterFeatures = computed(() => {
   const features = messages.value[locale.value]?.packages?.starter?.features;
@@ -185,6 +250,43 @@ const premiumFeatures = computed(() => {
   const features = messages.value[locale.value]?.packages?.premium?.features;
   return Array.isArray(features) ? features : [];
 });
+
+// Methods
+const openPaymentModal = (packageType, paymentType = "full") => {
+  selectedPackage.value = packageData.value[packageType];
+  selectedPaymentType.value = paymentType;
+  isPaymentModalOpen.value = true;
+};
+
+const closePaymentModal = () => {
+  isPaymentModalOpen.value = false;
+  selectedPackage.value = null;
+  selectedPaymentType.value = "full";
+};
+
+const handlePaymentSuccess = (paymentData) => {
+  console.log("Payment successful:", paymentData);
+  closePaymentModal();
+
+  // Show success message
+  alert(
+    t("payment.success") ||
+      "Payment successful! We will contact you shortly to begin your project."
+  );
+
+  // Here you could:
+  // 1. Send confirmation email
+  // 2. Create project in your system
+  // 3. Redirect to success page
+  // 4. Update user dashboard
+};
+
+const handlePaymentError = (error) => {
+  console.error("Payment error:", error);
+  alert(
+    t("payment.error") || "Payment failed. Please try again or contact support."
+  );
+};
 </script>
 
 <style scoped>

@@ -38,9 +38,10 @@
             <h3 class="text-2xl font-bold mb-2 text-[#051d40]">
               {{ $t("servicesPage.services.starter.title") }}
             </h3>
-            <div class="text-[#fbc646] text-3xl font-bold mb-4">
-              {{ $t("servicesPage.services.starter.price") }}
-            </div>
+            <div class="text-[#fbc646] text-3xl font-bold mb-2">฿3,000</div>
+            <p class="text-sm text-gray-500 mb-4">
+              {{ locale.value === "th" ? "+ ภาษี 7%" : "+ 7% VAT" }}
+            </p>
             <ul class="mb-6 space-y-3">
               <li
                 v-for="(feature, index) in $tm(
@@ -68,12 +69,22 @@
             <p class="text-gray-600 mb-6">
               {{ $t("servicesPage.services.starter.description") }}
             </p>
-            <router-link
-              to="/contact"
-              class="block text-center bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
-            >
-              Get Started
-            </router-link>
+
+            <!-- Payment Buttons -->
+            <div class="space-y-3">
+              <button
+                @click="openPaymentModal(starterPackage, 'full')"
+                class="w-full bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
+              >
+                {{ $t("packages.starter.payNow") }}
+              </button>
+              <button
+                @click="openPaymentModal(starterPackage, 'deposit')"
+                class="w-full border-2 border-[#051d40] text-[#051d40] py-3 rounded-md font-medium hover:bg-[#051d40] hover:text-white transition duration-300"
+              >
+                {{ $t("packages.starter.payDeposit") }}
+              </button>
+            </div>
           </div>
 
           <!-- E-commerce Website -->
@@ -88,9 +99,10 @@
             <h3 class="text-2xl font-bold mb-2 text-white">
               {{ $t("servicesPage.services.ecommerce.title") }}
             </h3>
-            <div class="text-[#fbc646] text-3xl font-bold mb-4">
-              {{ $t("servicesPage.services.ecommerce.price") }}
-            </div>
+            <div class="text-[#fbc646] text-3xl font-bold mb-2">฿4,500</div>
+            <p class="text-sm text-yellow-200 mb-4">
+              {{ locale.value === "th" ? "+ ภาษี 7%" : "+ 7% VAT" }}
+            </p>
             <ul class="mb-6 space-y-3 text-white">
               <li
                 v-for="(feature, index) in $tm(
@@ -118,12 +130,22 @@
             <p class="text-white mb-6">
               {{ $t("servicesPage.services.ecommerce.description") }}
             </p>
-            <router-link
-              to="/contact"
-              class="block text-center bg-[#fbc646] text-[#051d40] py-3 rounded-md font-medium hover:bg-yellow-400 transition duration-300"
-            >
-              Get Started
-            </router-link>
+
+            <!-- Payment Buttons -->
+            <div class="space-y-3">
+              <button
+                @click="openPaymentModal(ecommercePackage, 'full')"
+                class="w-full bg-[#fbc646] text-[#051d40] py-3 rounded-md font-medium hover:bg-yellow-400 transition duration-300"
+              >
+                {{ $t("packages.ecommerce.payNow") }}
+              </button>
+              <button
+                @click="openPaymentModal(ecommercePackage, 'deposit')"
+                class="w-full border-2 border-[#fbc646] text-[#fbc646] py-3 rounded-md font-medium hover:bg-[#fbc646] hover:text-[#051d40] transition duration-300"
+              >
+                {{ $t("packages.ecommerce.payDeposit") }}
+              </button>
+            </div>
           </div>
 
           <!-- Custom Website -->
@@ -133,9 +155,10 @@
             <h3 class="text-2xl font-bold mb-2 text-[#051d40]">
               {{ $t("servicesPage.services.custom.title") }}
             </h3>
-            <div class="text-[#fbc646] text-3xl font-bold mb-4">
-              {{ $t("servicesPage.services.custom.price") }}
-            </div>
+            <div class="text-[#fbc646] text-3xl font-bold mb-2">฿15,000</div>
+            <p class="text-sm text-gray-500 mb-4">
+              {{ locale.value === "th" ? "+ ภาษี 7%" : "+ 7% VAT" }}
+            </p>
             <ul class="mb-6 space-y-3">
               <li
                 v-for="(feature, index) in $tm(
@@ -163,12 +186,22 @@
             <p class="text-gray-600 mb-6">
               {{ $t("servicesPage.services.custom.description") }}
             </p>
-            <router-link
-              to="/contact"
-              class="block text-center bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
-            >
-              Get Started
-            </router-link>
+
+            <!-- Payment Buttons -->
+            <div class="space-y-3">
+              <button
+                @click="openPaymentModal(premiumPackage, 'full')"
+                class="w-full bg-[#051d40] text-white py-3 rounded-md font-medium hover:bg-[#0e2d5a] transition duration-300"
+              >
+                {{ $t("packages.premium.payNow") }}
+              </button>
+              <button
+                @click="openPaymentModal(premiumPackage, 'deposit')"
+                class="w-full border-2 border-[#051d40] text-[#051d40] py-3 rounded-md font-medium hover:bg-[#051d40] hover:text-white transition duration-300"
+              >
+                {{ $t("packages.premium.payDeposit") }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -354,11 +387,85 @@
         </router-link>
       </div>
     </section>
+
+    <!-- Payment Modal -->
+    <PaymentModal
+      :isOpen="isPaymentModalOpen"
+      :packageData="selectedPackageData"
+      @close="closePaymentModal"
+      @payment-success="handlePaymentSuccess"
+      @payment-error="handlePaymentError"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import PaymentModal from "@/components/PaymentModal.vue";
+
+const { t, locale } = useI18n();
+
+// Payment Modal State
+const isPaymentModalOpen = ref(false);
+const selectedPackageData = ref({});
+
+// Package Data (base prices - VAT added during payment)
+const starterPackage = {
+  type: "starter",
+  title: t("packages.starter.title"),
+  price: "฿3,000",
+  basePrice: 3000, // VAT will be added during payment
+};
+
+const ecommercePackage = {
+  type: "ecommerce",
+  title: t("packages.ecommerce.title"),
+  price: "฿4,500",
+  basePrice: 4500, // VAT will be added during payment
+};
+
+const premiumPackage = {
+  type: "premium",
+  title: t("packages.premium.title"),
+  price: "฿15,000",
+  basePrice: 15000, // VAT will be added during payment
+};
+
+// Payment Methods
+const openPaymentModal = (packageData, paymentType) => {
+  selectedPackageData.value = { ...packageData, paymentType };
+  isPaymentModalOpen.value = true;
+};
+
+const closePaymentModal = () => {
+  isPaymentModalOpen.value = false;
+  selectedPackageData.value = {};
+};
+
+const handlePaymentSuccess = (paymentData) => {
+  console.log("Payment successful:", paymentData);
+
+  // Show success message
+  alert(
+    t("payment.success") ||
+      "Payment successful! We'll contact you within 24 hours to start your project."
+  );
+
+  closePaymentModal();
+
+  // Optional: Redirect to thank you page or show success state
+  // router.push('/thank-you');
+};
+
+const handlePaymentError = (error) => {
+  console.error("Payment error:", error);
+
+  // Show error message
+  alert(
+    error.message || t("payment.error") || "Payment failed. Please try again."
+  );
+};
 
 // Function to set up reveal animations
 const setupRevealAnimations = () => {
