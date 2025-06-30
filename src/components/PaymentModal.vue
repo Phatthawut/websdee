@@ -671,6 +671,7 @@ const processPayment = async () => {
       amount: finalAmount,
       currency: "thb",
       paymentType: paymentType.value,
+      paymentMethodType: selectedPaymentMethod.value,
     });
 
     if (result.error) {

@@ -10,19 +10,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineString } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
-const cors = require("cors")({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://websdee.com",
-    "https://www.websdee.com",
-    // Add your actual production domain here when you deploy
-    // "https://your-production-domain.com"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Stripe-Signature"],
-});
 
 // Initialize Stripe with secret key from environment
 const stripeSecretKey = defineString("STRIPE_SECRET_KEY");
@@ -33,22 +20,27 @@ const regionConfig = {
   region: "asia-southeast1",
   memory: "256MiB",
   timeoutSeconds: 60,
-  cors: true,
+  invoker: "public", // Allow unauthenticated access
 };
 
-// CORS wrapper function
+// CORS wrapper function with direct header setting
 const corsWrapper = (fn) => {
   return (req, res) => {
+    // Always set CORS headers for all responses
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, Stripe-Signature"
+    );
+    res.set("Access-Control-Max-Age", "3600");
+
     // Handle preflight OPTIONS request
     if (req.method === "OPTIONS") {
-      res.set("Access-Control-Allow-Origin", req.headers.origin || "*");
-      res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-      res.set("Access-Control-Max-Age", "3600");
-      return res.status(204).send("");
+      return res.status(204).end();
     }
 
-    return cors(req, res, () => fn(req, res));
+    return fn(req, res);
   };
 };
 
@@ -75,20 +67,29 @@ exports.createPaymentIntent = onRequest(
       }
 
       // Create payment intent
-      const paymentIntent = await stripe.paymentIntents.create({
+      const paymentIntentOptions = {
         amount: amount, // Amount should already be in cents from frontend
         currency: currency.toLowerCase(),
-        payment_method_types: payment_method_types || ["card"],
         metadata: {
           ...metadata,
           source: "websdee_website",
           region: "thailand",
         },
-        automatic_payment_methods: {
+      };
+
+      // Use either automatic payment methods or specific payment method types
+      if (payment_method_types && payment_method_types.length > 0) {
+        paymentIntentOptions.payment_method_types = payment_method_types;
+      } else {
+        paymentIntentOptions.automatic_payment_methods = {
           enabled: true,
           allow_redirects: "never", // For simplicity, disable redirects
-        },
-      });
+        };
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(
+        paymentIntentOptions
+      );
 
       logger.info("Payment intent created", {
         paymentIntentId: paymentIntent.id,
@@ -216,94 +217,71 @@ exports.createSubscription = onRequest(
   })
 );
 
-// Handle Stripe Webhooks
-exports.stripeWebhook = onRequest(regionConfig, async (req, res) => {
-  const stripe = require("stripe")(stripeSecretKey.value());
-  const endpointSecret = stripeWebhookSecret.value();
+// Stripe Webhook
+exports.stripeWebhook = onRequest(
+  regionConfig,
+  corsWrapper(async (req, res) => {
+    const stripe = require("stripe")(stripeSecretKey.value());
+    const endpointSecret = stripeWebhookSecret.value();
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+    logger.info("Received webhook event");
 
-  const sig = req.headers["stripe-signature"];
-  let event;
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-  try {
-    // Verify webhook signature
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    logger.info("Webhook verified", { type: event.type, id: event.id });
-  } catch (err) {
-    logger.error("Webhook signature verification failed", err);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    const sig = req.headers["stripe-signature"];
 
-  // Handle the event
-  try {
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    } catch (err) {
+      logger.error("Webhook signature verification failed", err);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    logger.info("Webhook verified", { type: event.type });
+
+    // Handle the event
     switch (event.type) {
       case "payment_intent.succeeded":
         const paymentIntent = event.data.object;
-        logger.info("Payment succeeded", {
+        logger.info("Payment intent succeeded", {
           paymentIntentId: paymentIntent.id,
-          amount: paymentIntent.amount,
-          currency: paymentIntent.currency,
         });
-
-        // TODO: Update your database, send confirmation email, etc.
-        // You can integrate with Firestore here to update order status
+        // Handle successful payment
         break;
-
       case "payment_intent.payment_failed":
-        const failedPayment = event.data.object;
-        logger.warn("Payment failed", {
-          paymentIntentId: failedPayment.id,
-          lastPaymentError: failedPayment.last_payment_error,
+        const failedPaymentIntent = event.data.object;
+        logger.info("Payment intent failed", {
+          paymentIntentId: failedPaymentIntent.id,
         });
-
-        // TODO: Handle failed payment
+        // Handle failed payment
         break;
-
-      case "invoice.payment_succeeded":
-        const invoice = event.data.object;
-        logger.info("Subscription payment succeeded", {
-          invoiceId: invoice.id,
-          subscriptionId: invoice.subscription,
-        });
-
-        // TODO: Update subscription status in your database
-        break;
-
-      case "customer.subscription.deleted":
+      case "customer.subscription.created":
         const subscription = event.data.object;
-        logger.info("Subscription canceled", {
+        logger.info("Subscription created", {
           subscriptionId: subscription.id,
-          customerId: subscription.customer,
         });
-
-        // TODO: Handle subscription cancellation
+        // Handle subscription creation
         break;
-
       default:
-        logger.info("Unhandled event type", { type: event.type });
+        logger.info(`Unhandled event type: ${event.type}`);
     }
 
     res.json({ received: true });
-  } catch (error) {
-    logger.error("Error handling webhook", error);
-    res.status(500).json({ error: "Webhook handler failed" });
-  }
-});
+  })
+);
 
-// Test endpoint to verify functions are working
+// Test endpoint
 exports.testStripe = onRequest(
   regionConfig,
   corsWrapper(async (req, res) => {
-    logger.info("Test endpoint called");
-
     res.json({
-      message: "Stripe Firebase Functions are working!",
-      region: "asia-southeast1",
+      message: "Stripe API is working!",
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "development",
+      region: "asia-southeast1",
     });
   })
 );

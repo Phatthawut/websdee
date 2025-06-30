@@ -167,7 +167,13 @@
     },
     "processing": "Processing payment...",
     "success": "Payment successful!",
-    "error": "Payment failed. Please try again."
+    "error": "Payment failed. Please try again.",
+    "successTitle": "Payment Successful!",
+    "successMessage": "Thank you for your payment. We will contact you shortly to begin your project.",
+    "status": "Payment Status",
+    "statusSucceeded": "Completed",
+    "statusProcessing": "Processing",
+    "returnHome": "Return to Homepage"
   },
   "cancel": "Cancel",
   "addons": {

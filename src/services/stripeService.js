@@ -141,23 +141,30 @@ export const processPayment = async (paymentData) => {
   const stripe = await stripePromise;
 
   try {
-    const { clientSecret, amount, currency, paymentType } = paymentData;
+    const { clientSecret, amount, currency, paymentType, paymentMethodType } =
+      paymentData;
 
-    if (paymentType === "full") {
-      // Full payment
-      const result = await stripe.confirmCardPayment(clientSecret);
-      return result;
-    } else if (paymentType === "deposit") {
-      // 50% deposit payment
-      const depositAmount = Math.round(amount * 0.5);
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: {
-            // Card details will be collected by Stripe Elements
-          },
+    // For PromptPay or other non-card payment methods, redirect to checkout
+    if (paymentMethodType && paymentMethodType !== "card") {
+      // Redirect to Stripe Checkout for PromptPay, bank transfer, etc.
+      const { error } = await stripe.confirmPayment({
+        elements: null,
+        clientSecret,
+        confirmParams: {
+          return_url: window.location.origin + "/payment-success",
         },
       });
-      return result;
+
+      if (error) {
+        throw error;
+      }
+
+      return { paymentIntent: { status: "requires_action" } };
+    } else {
+      // For card payments, use Elements (which should be set up separately)
+      // This is a placeholder - you need to implement card Elements in your UI
+      window.location.href = `https://checkout.stripe.com/pay/${clientSecret}`;
+      return { paymentIntent: { status: "requires_action" } };
     }
   } catch (error) {
     console.error("Error processing payment:", error);
