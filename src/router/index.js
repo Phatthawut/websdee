@@ -15,9 +15,24 @@ const routes = [
         component: () => import("@/views/HomePage.vue"),
       },
       {
+        path: "order-confirmation",
+        name: "OrderConfirmation",
+        component: () => import("@/views/OrderConfirmation.vue"),
+      },
+      {
         path: "payment-success",
         name: "PaymentSuccess",
         component: () => import("@/views/PaymentSuccess.vue"),
+      },
+      {
+        path: "bank-transfer-thank-you",
+        name: "BankTransferThankYou",
+        component: () => import("@/views/BankTransferThankYou.vue"),
+      },
+      {
+        path: "bank-transfer-test",
+        name: "BankTransferTest",
+        component: () => import("@/views/BankTransferTest.vue"),
       },
       {
         path: "solutions",

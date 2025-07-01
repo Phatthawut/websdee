@@ -495,8 +495,10 @@
 <script setup>
 import { ref, computed, watch, onMounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import stripeService from "@/services/stripeService";
 import { usePaymentStore } from "@/stores/paymentStore";
+import { useLanguage } from "@/composables/useLanguage";
 import { trackEvent, trackPayment } from "@/utils/analyticsUtils";
 
 const props = defineProps({
@@ -510,6 +512,7 @@ const props = defineProps({
 const emit = defineEmits(["close", "payment-success", "payment-error"]);
 
 const { t, locale } = useI18n();
+const router = useRouter();
 
 // Use payment store
 const paymentStore = usePaymentStore();
@@ -590,13 +593,10 @@ const addonsTotal = computed(() => {
   }, 0);
 });
 
-// VAT calculations for display
+// VAT calculations for display (currently disabled)
 const vatAmount = computed(() => {
-  let baseTotal = paymentStore.baseAmount + paymentStore.addonsTotal;
-  if (paymentStore.paymentType === "full") {
-    baseTotal = Math.round(baseTotal * 0.95); // Apply 5% discount
-  }
-  return stripeService.calculateVATAmount(baseTotal);
+  // VAT is currently disabled, return 0
+  return 0;
 });
 
 const totalAmount = computed(() => {
@@ -720,7 +720,7 @@ const isValidPhone = (phone) => {
   return phoneRegex.test(phone.replace(/[- ]/g, ""));
 };
 
-// Update process payment to use validation and track analytics
+// Process payment
 const processPayment = async () => {
   // Validate form before processing payment
   if (!validateForm()) {
@@ -730,6 +730,12 @@ const processPayment = async () => {
         (key) => validationErrors[key]
       ),
     });
+    return;
+  }
+
+  // Handle bank transfer separately
+  if (paymentStore.paymentMethod === "bank_transfer") {
+    handleBankTransfer();
     return;
   }
 
@@ -799,9 +805,58 @@ const processPayment = async () => {
       package: props.packageData.title,
     });
 
-    emit("payment-error", error);
+    emit("payment-error", {
+      message:
+        locale.value === "th"
+          ? "การชำระเงินล้มเหลว กรุณาลองใหม่อีกครั้ง"
+          : "Payment failed. Please try again.",
+      error: error.message,
+    });
   } finally {
     paymentStore.isProcessing = false;
+  }
+};
+
+// Handle bank transfer
+const handleBankTransfer = async () => {
+  try {
+    // Track bank transfer selection
+    trackEvent("bank_transfer_selected", {
+      package: props.packageData.title,
+      payment_type: paymentStore.paymentType,
+      amount: paymentStore.totalAmount,
+      currency: "THB",
+    });
+
+    // Store bank transfer data in Firestore
+    const paymentDetails = await paymentStore.storeBankTransferData();
+
+    // Close the payment modal
+    emit("close");
+
+    // Redirect to unified order confirmation page with payment details
+    router.push({
+      name: "OrderConfirmation",
+      query: {
+        payment_method: "bank_transfer",
+        amount: paymentStore.totalAmount,
+        package: props.packageData.title,
+        type: paymentStore.paymentType,
+        reference: paymentDetails.reference_number,
+      },
+    });
+  } catch (error) {
+    console.error("Bank transfer error:", error);
+    trackEvent("bank_transfer_error", {
+      error_message: error.message || "Unknown bank transfer error",
+    });
+
+    emit("payment-error", {
+      message:
+        locale.value === "th"
+          ? "เกิดข้อผิดพลาดในการแสดงข้อมูลการโอนเงิน"
+          : "Error displaying bank transfer information.",
+    });
   }
 };
 

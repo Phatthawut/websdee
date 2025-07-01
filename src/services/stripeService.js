@@ -43,9 +43,6 @@ const isStripeConfigured = () => {
   return !!stripePublishableKey;
 };
 
-// VAT rate for Thailand
-const VAT_RATE = 0; // Disabled VAT for now
-
 // Exchange rate USD to THB (update regularly or use API)
 const USD_TO_THB = 35;
 
@@ -115,8 +112,7 @@ export const createPaymentIntent = async (
         currency: currency.toLowerCase(),
         payment_method_types: paymentMethodTypes,
         metadata: {
-          vat_included: "true",
-          vat_rate: VAT_RATE.toString(),
+          vat_included: "false",
           ...metadata,
         },
       }),
@@ -193,7 +189,7 @@ export const createCheckoutSession = async (
           vat_included: "false",
           ...metadata,
         },
-        success_url: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}&payment_method=stripe`,
         cancel_url: `${window.location.origin}/`,
       }),
     });
@@ -268,7 +264,7 @@ export const createCustomer = async (customerData) => {
   }
 };
 
-// Get available payment methods for Thai market
+// Get available payment methods for Thailand
 export const getThaiPaymentMethods = () => {
   return [
     {
@@ -308,31 +304,6 @@ export const formatCurrency = (amount, currency = "THB", locale = "th-TH") => {
   }).format(amount);
 };
 
-// Calculate price with VAT (7% Thai VAT)
-export const calculatePriceWithVAT = (basePrice) => {
-  // VAT disabled, return base price
-  return basePrice;
-};
-
-// Calculate VAT amount
-export const calculateVATAmount = (basePrice) => {
-  // VAT disabled, return 0
-  return 0;
-};
-
-// Calculate deposit amount (50% of total including VAT)
-export const calculateDeposit = (baseAmount) => {
-  const totalWithVAT = calculatePriceWithVAT(baseAmount);
-  return Math.round(totalWithVAT * 0.5);
-};
-
-// Calculate remaining amount after deposit
-export const calculateRemainingAmount = (baseAmount) => {
-  const totalWithVAT = calculatePriceWithVAT(baseAmount);
-  const deposit = calculateDeposit(baseAmount);
-  return totalWithVAT - deposit;
-};
-
 export default {
   createPaymentIntent,
   createSubscription,
@@ -340,13 +311,8 @@ export default {
   createCustomer,
   getThaiPaymentMethods,
   formatCurrency,
-  calculatePriceWithVAT,
-  calculateVATAmount,
-  calculateDeposit,
-  calculateRemainingAmount,
   isStripeConfigured,
   PACKAGE_PRICES_THB,
   ADDON_PRICES_THB,
   MAINTENANCE_PLANS_THB,
-  VAT_RATE,
 };

@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import stripeService from "@/services/stripeService";
+import { db } from "@/services/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export const usePaymentStore = defineStore("payment", () => {
   // State
@@ -213,6 +215,101 @@ export const usePaymentStore = defineStore("payment", () => {
     }
   }
 
+  async function storeBankTransferData() {
+    try {
+      // Generate reference number for bank transfer
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 8);
+      const reference = `BT-${timestamp}-${random}`.toUpperCase();
+
+      // Create bank transfer record for Firestore
+      const bankTransferRecord = {
+        id: reference,
+        reference_number: reference,
+        type: "bank_transfer",
+        status: "pending_payment",
+        payment_method: "bank_transfer",
+        amount: totalAmount.value,
+        currency: "THB",
+        created_at: new Date(),
+        updated_at: new Date(),
+        source: "websdee_website",
+
+        // Customer information
+        customer: {
+          name: customerInfo.value.name,
+          email: customerInfo.value.email,
+          phone: customerInfo.value.phone,
+          company: customerInfo.value.company || "",
+        },
+
+        // Order information
+        order: {
+          package_name: selectedPackage.value.title,
+          package_type: selectedPackage.value.type || "web_development",
+          payment_type: paymentType.value,
+          base_amount: baseAmount.value,
+          addons_total: addonsTotal.value,
+          discount_applied: paymentType.value === "full" ? "5%" : "0%",
+          final_amount: totalAmount.value,
+          addons_selected: selectedAddons.value,
+          project_requirements: customerInfo.value.requirements || "",
+          order_status: "pending_bank_transfer",
+          delivery_status: "pending",
+          project_status: "new",
+        },
+
+        // Bank transfer specific information
+        bank_details: {
+          bank_name: "ธนาคารทหารไทยธนชาต (TMB Bank)",
+          account_name: "น.ส. พัชรีรัตน์ จันทวงศ์",
+          account_number: "621-2-54406-5",
+          branch: "เซ็นทรัลพลาซ่า เชียงใหม่ แอร์พอร์ต",
+        },
+      };
+
+      // Store directly in Firestore payments collection
+      const paymentRef = doc(db, "payments", reference);
+      await setDoc(paymentRef, bankTransferRecord);
+
+      // Create payment details for local storage
+      const paymentDetails = {
+        status: "pending",
+        amount: totalAmount.value,
+        currency: "THB",
+        id: reference,
+        reference_number: reference,
+        payment_method: "bank_transfer",
+        customer: {
+          name: customerInfo.value.name,
+          email: customerInfo.value.email,
+          phone: customerInfo.value.phone,
+          company: customerInfo.value.company,
+          requirements: customerInfo.value.requirements,
+        },
+        order: {
+          payment_type: paymentType.value,
+          package_name: selectedPackage.value.title,
+          final_amount: totalAmount.value,
+          base_amount: baseAmount.value,
+          addons_total: addonsTotal.value,
+          addons_selected: selectedAddons.value,
+        },
+      };
+
+      // Add to local payment history
+      paymentHistory.value.push(paymentDetails);
+
+      // Set current payment details
+      currentPaymentDetails.value = paymentDetails;
+
+      return paymentDetails;
+    } catch (error) {
+      console.error("Error storing bank transfer data:", error);
+      throw error;
+    }
+  }
+
   // Generate a shorter reference ID from Stripe session ID or payment intent ID
   function generateShortReferenceId(fullId) {
     if (!fullId) return "";
@@ -330,6 +427,7 @@ export const usePaymentStore = defineStore("payment", () => {
     setSelectedAddons,
     processPayment,
     storePaymentData,
+    storeBankTransferData,
     retrieveSessionDetails,
     setCurrentPaymentDetails,
     reset,

@@ -456,6 +456,105 @@ exports.storePaymentData = onRequest(
   })
 );
 
+// Store Bank Transfer Data
+exports.storeBankTransferData = onRequest(
+  regionConfig,
+  corsWrapper(async (req, res) => {
+    logger.info("Storing bank transfer data", { body: req.body });
+
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+      const { reference, orderData } = req.body;
+
+      if (!reference) {
+        return res.status(400).json({
+          error: "Missing required field: reference",
+        });
+      }
+
+      if (!orderData) {
+        return res.status(400).json({
+          error: "Missing required field: orderData",
+        });
+      }
+
+      // Store in unified payments collection only
+      const paymentRef = db.collection("payments").doc(reference);
+
+      // Create bank transfer record
+      const bankTransferRecord = {
+        id: reference,
+        reference_number: reference,
+        type: "bank_transfer",
+        status: "pending_payment",
+        payment_method: "bank_transfer",
+        amount: orderData.final_amount,
+        currency: orderData.currency || "THB",
+        created_at: new Date(),
+        updated_at: new Date(),
+        source: "websdee_website",
+
+        // Customer information
+        customer: {
+          name: orderData.customer_name,
+          email: orderData.customer_email,
+          phone: orderData.customer_phone,
+          company: orderData.customer_company || "",
+        },
+
+        // Order information
+        order: {
+          package_name: orderData.package_name,
+          package_type: orderData.package_type,
+          payment_type: orderData.payment_type,
+          base_amount: orderData.base_amount,
+          addons_total: orderData.addons_total,
+          discount_applied: orderData.discount_applied,
+          final_amount: orderData.final_amount,
+          addons_selected: orderData.addons_selected,
+          project_requirements: orderData.project_requirements,
+          order_status: orderData.order_status,
+          delivery_status: orderData.delivery_status,
+          project_status: orderData.project_status,
+        },
+
+        // Bank transfer specific information
+        bank_details: {
+          bank_name: "ธนาคารทหารไทยธนชาต (TMB Bank)",
+          account_name: "น.ส. พัชรีรัตน์ จันทวงศ์",
+          account_number: "621-2-54406-5",
+          branch: "เซ็นทรัลพลาซ่า เชียงใหม่ แอร์พอร์ต",
+        },
+
+        // Metadata
+        metadata: orderData,
+      };
+
+      // Save to Firestore - only in payments collection
+      await paymentRef.set(bankTransferRecord);
+
+      logger.info("Bank transfer data stored successfully", { reference });
+
+      res.json({
+        success: true,
+        message:
+          "Bank transfer data stored successfully in payments collection",
+        reference: reference,
+        payment_id: reference,
+      });
+    } catch (error) {
+      logger.error("Error storing bank transfer data", error);
+      res.status(500).json({
+        error: "Failed to store bank transfer data",
+        message: error.message,
+      });
+    }
+  })
+);
+
 // Get Session Details
 exports.getSessionDetails = onRequest(
   regionConfig,
