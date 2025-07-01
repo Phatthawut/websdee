@@ -73,11 +73,17 @@
               v-model="paymentStore.customerInfo.name"
               type="text"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              :class="
+                validationErrors.name ? 'border-red-500' : 'border-gray-300'
+              "
               :placeholder="
                 locale.value === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'
               "
             />
+            <p v-if="validationErrors.name" class="mt-1 text-sm text-red-600">
+              {{ validationErrors.name }}
+            </p>
           </div>
 
           <!-- Email -->
@@ -89,9 +95,15 @@
               v-model="paymentStore.customerInfo.email"
               type="email"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              :class="
+                validationErrors.email ? 'border-red-500' : 'border-gray-300'
+              "
               :placeholder="locale.value === 'th' ? 'อีเมล' : 'Email Address'"
             />
+            <p v-if="validationErrors.email" class="mt-1 text-sm text-red-600">
+              {{ validationErrors.email }}
+            </p>
           </div>
 
           <!-- Phone -->
@@ -103,11 +115,17 @@
               v-model="paymentStore.customerInfo.phone"
               type="tel"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
+              :class="
+                validationErrors.phone ? 'border-red-500' : 'border-gray-300'
+              "
               :placeholder="
                 locale.value === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'
               "
             />
+            <p v-if="validationErrors.phone" class="mt-1 text-sm text-red-600">
+              {{ validationErrors.phone }}
+            </p>
           </div>
 
           <!-- Company Name (Optional) -->
@@ -280,6 +298,8 @@
             :class="
               paymentStore.paymentMethod === method.id
                 ? 'border-[#fbc646] bg-yellow-50'
+                : validationErrors.payment
+                ? 'border-red-300'
                 : 'border-gray-200'
             "
             @click="selectPaymentMethod(method.id)"
@@ -302,6 +322,9 @@
             />
           </div>
         </div>
+        <p v-if="validationErrors.payment" class="mt-1 text-sm text-red-600">
+          {{ validationErrors.payment }}
+        </p>
       </div>
 
       <!-- Total Amount with VAT Breakdown -->
@@ -440,7 +463,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import stripeService from "@/services/stripeService";
 import { usePaymentStore } from "@/stores/paymentStore";
@@ -564,6 +587,8 @@ const selectPaymentType = (type) => {
 
 const selectPaymentMethod = (methodId) => {
   paymentStore.setPaymentMethod(methodId);
+  // Clear payment method validation error when a method is selected
+  validationErrors.payment = "";
 };
 
 const getCurrentMethodName = (method) => {
@@ -574,24 +599,87 @@ const closeModal = () => {
   emit("close");
 };
 
-const processPayment = async () => {
-  // Validate customer information
+// Add validation state
+const validationErrors = reactive({
+  name: "",
+  email: "",
+  phone: "",
+  payment: "",
+});
+
+// Add validation methods
+const validateForm = () => {
+  let isValid = true;
+
+  // Reset validation errors
+  validationErrors.name = "";
+  validationErrors.email = "";
+  validationErrors.phone = "";
+  validationErrors.payment = "";
+
+  // Validate name
   if (!paymentStore.customerInfo.name.trim()) {
-    alert(locale.value === "th" ? "กรุณากรอกชื่อ" : "Please enter your name");
-    return;
+    validationErrors.name =
+      locale.value === "th" ? "กรุณากรอกชื่อ" : "Please enter your name";
+    isValid = false;
   }
 
+  // Validate email
   if (!paymentStore.customerInfo.email.trim()) {
-    alert(locale.value === "th" ? "กรุณากรอกอีเมล" : "Please enter your email");
-    return;
+    validationErrors.email =
+      locale.value === "th" ? "กรุณากรอกอีเมล" : "Please enter your email";
+    isValid = false;
+  } else if (!isValidEmail(paymentStore.customerInfo.email)) {
+    validationErrors.email =
+      locale.value === "th" ? "รูปแบบอีเมลไม่ถูกต้อง" : "Invalid email format";
+    isValid = false;
   }
 
+  // Validate phone
   if (!paymentStore.customerInfo.phone.trim()) {
-    alert(
+    validationErrors.phone =
       locale.value === "th"
         ? "กรุณากรอกเบอร์โทรศัพท์"
-        : "Please enter your phone number"
-    );
+        : "Please enter your phone number";
+    isValid = false;
+  } else if (!isValidPhone(paymentStore.customerInfo.phone)) {
+    validationErrors.phone =
+      locale.value === "th"
+        ? "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
+        : "Invalid phone number format";
+    isValid = false;
+  }
+
+  // Validate payment method
+  if (!paymentStore.paymentMethod) {
+    validationErrors.payment =
+      locale.value === "th"
+        ? "กรุณาเลือกวิธีการชำระเงิน"
+        : "Please select a payment method";
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+// Email validation helper
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Phone validation helper
+const isValidPhone = (phone) => {
+  // Allow Thai phone formats: 0812345678, 081-234-5678, +66812345678, etc.
+  const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{9,10}$/;
+  return phoneRegex.test(phone.replace(/[- ]/g, ""));
+};
+
+// Update process payment to use validation
+const processPayment = async () => {
+  // Validate form before processing payment
+  if (!validateForm()) {
+    // Form is invalid, don't proceed
     return;
   }
 
@@ -640,6 +728,56 @@ watch(
       paymentStore.setPaymentMethod("promptpay");
       paymentStore.setSelectedAddons([]);
       paymentStore.isProcessing = false;
+
+      // Reset validation errors
+      validationErrors.name = "";
+      validationErrors.email = "";
+      validationErrors.phone = "";
+      validationErrors.payment = "";
+    }
+  }
+);
+
+// Add watchers for real-time validation
+watch(
+  () => paymentStore.customerInfo.name,
+  (newValue) => {
+    if (newValue.trim()) {
+      validationErrors.name = "";
+    }
+  }
+);
+
+watch(
+  () => paymentStore.customerInfo.email,
+  (newValue) => {
+    if (newValue.trim()) {
+      if (isValidEmail(newValue)) {
+        validationErrors.email = "";
+      } else if (newValue.length > 5) {
+        // Only show email format error after user has typed enough characters
+        validationErrors.email =
+          locale.value === "th"
+            ? "รูปแบบอีเมลไม่ถูกต้อง"
+            : "Invalid email format";
+      }
+    }
+  }
+);
+
+watch(
+  () => paymentStore.customerInfo.phone,
+  (newValue) => {
+    if (newValue.trim()) {
+      if (isValidPhone(newValue)) {
+        validationErrors.phone = "";
+      } else if (newValue.length > 5) {
+        // Only show phone format error after user has typed enough digits
+        validationErrors.phone =
+          locale.value === "th"
+            ? "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
+            : "Invalid phone number format";
+      }
     }
   }
 );
