@@ -64,6 +64,18 @@ export const usePaymentStore = defineStore("payment", () => {
     return stripeService.formatCurrency(totalAmount.value, "THB", "th-TH");
   });
 
+  // Add a computed property specifically for deposit amount
+  const depositAmount = computed(() => {
+    const baseTotal = baseAmount.value + addonsTotal.value;
+    return Math.round(baseTotal * 0.5); // 50% of base amount
+  });
+
+  // Add a computed property for full payment amount with discount
+  const fullPaymentAmount = computed(() => {
+    const baseTotal = baseAmount.value + addonsTotal.value;
+    return Math.round(baseTotal * 0.95); // 5% discount
+  });
+
   const availableAddons = ref([
     {
       id: "domain",
@@ -306,6 +318,8 @@ export const usePaymentStore = defineStore("payment", () => {
     totalAmount,
     formattedTotalAmount,
     vatAmount,
+    depositAmount,
+    fullPaymentAmount,
 
     // Actions
     setCustomerInfo,

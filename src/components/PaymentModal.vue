@@ -188,14 +188,14 @@
                   $t("payment.options.full")
                 }}</span>
               </div>
-              <p class="text-sm text-green-600 mt-1">
-                {{ $t("payment.options.fullDiscount") }}
+              <p class="text-sm text-gray-600 mt-1">
+                {{ $t("payment.options.fullNote") }}
               </p>
             </div>
             <div class="text-right">
               <div class="font-bold text-lg">{{ fullPaymentAmount }}</div>
-              <div class="text-sm text-gray-500 line-through">
-                {{ packageData.price }}
+              <div class="text-xs text-gray-500 line-through">
+                {{ originalAmount }}
               </div>
             </div>
           </div>
@@ -227,6 +227,9 @@
               <p class="text-sm text-gray-600 mt-1">
                 {{ $t("payment.options.depositNote") }}
               </p>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-lg">{{ depositAmount }}</div>
             </div>
           </div>
         </div>
@@ -501,22 +504,16 @@ const baseAmount = computed(() => {
 });
 
 const fullPaymentAmount = computed(() => {
-  const discountedBaseAmount = Math.round(paymentStore.baseAmount * 0.95); // 5% discount on base
-  const totalWithAddons = discountedBaseAmount + paymentStore.addonsTotal;
-  const finalAmountWithVAT =
-    stripeService.calculatePriceWithVAT(totalWithAddons);
   return stripeService.formatCurrency(
-    finalAmountWithVAT,
+    paymentStore.fullPaymentAmount,
     "THB",
     locale.value === "th" ? "th-TH" : "en-US"
   );
 });
 
 const depositAmount = computed(() => {
-  const totalBase = paymentStore.baseAmount + paymentStore.addonsTotal;
-  const deposit = stripeService.calculateDeposit(totalBase);
   return stripeService.formatCurrency(
-    deposit,
+    paymentStore.depositAmount,
     "THB",
     locale.value === "th" ? "th-TH" : "en-US"
   );
@@ -546,6 +543,15 @@ const vatAmount = computed(() => {
 const totalAmount = computed(() => {
   return stripeService.formatCurrency(
     paymentStore.totalAmount,
+    "THB",
+    locale.value === "th" ? "th-TH" : "en-US"
+  );
+});
+
+const originalAmount = computed(() => {
+  const baseTotal = paymentStore.baseAmount + paymentStore.addonsTotal;
+  return stripeService.formatCurrency(
+    baseTotal,
     "THB",
     locale.value === "th" ? "th-TH" : "en-US"
   );

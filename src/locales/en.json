@@ -84,7 +84,7 @@
     "subtitle": "Choose the right package for your business",
     "customMessage": "Need a custom package? Contact us for a tailored solution.",
     "recommended": "Recommended",
-    "vatIncluded": "VAT not included",
+    "vatIncluded": "",
     "starter": {
       "title": "Starter",
       "price": "฿3,000",
@@ -156,7 +156,8 @@
       "full": "Pay Full Amount",
       "deposit": "Pay 50% Deposit",
       "fullDiscount": "5% discount for full payment",
-      "depositNote": "Remaining 50% (including VAT) due before delivery"
+      "fullNote": "5% discount for full payment",
+      "depositNote": "Remaining 50% due before delivery"
     },
     "form": {
       "name": "Full Name",
