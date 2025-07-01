@@ -152,7 +152,7 @@
               ส่งข้อความถึงเรา
             </h3>
 
-            <form class="space-y-4">
+            <form class="space-y-4" @submit.prevent="submitForm">
               <div>
                 <label
                   for="name"
@@ -160,6 +160,7 @@
                   >ชื่อ-นามสกุล</label
                 >
                 <input
+                  v-model="formData.name"
                   type="text"
                   id="name"
                   name="name"
@@ -175,6 +176,7 @@
                   >อีเมล</label
                 >
                 <input
+                  v-model="formData.email"
                   type="email"
                   id="email"
                   name="email"
@@ -190,6 +192,7 @@
                   >เบอร์โทรศัพท์</label
                 >
                 <input
+                  v-model="formData.phone"
                   type="tel"
                   id="phone"
                   name="phone"
@@ -204,6 +207,7 @@
                   >สนใจบริการ</label
                 >
                 <select
+                  v-model="formData.service"
                   id="service"
                   name="service"
                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#fbc646] focus:border-[#fbc646] outline-none"
@@ -224,6 +228,7 @@
                   >ข้อความ</label
                 >
                 <textarea
+                  v-model="formData.message"
                   id="message"
                   name="message"
                   rows="4"
@@ -235,8 +240,9 @@
               <button
                 type="submit"
                 class="w-full bg-[#051d40] text-white py-3 px-4 rounded-md hover:bg-[#0e2d5a] transition duration-300"
+                :disabled="isSubmitting"
               >
-                ส่งข้อความ
+                {{ isSubmitting ? "กำลังส่ง..." : "ส่งข้อความ" }}
               </button>
             </form>
           </div>
@@ -247,7 +253,51 @@
 </template>
 
 <script setup>
-// No props or logic needed for now
+import { ref, reactive } from "vue";
+import { trackFormSubmission } from "@/utils/analyticsUtils";
+
+// Form data state
+const formData = reactive({
+  name: "",
+  email: "",
+  phone: "",
+  service: "",
+  message: "",
+});
+
+// Form submission state
+const isSubmitting = ref(false);
+
+// Form submission handler
+const submitForm = async () => {
+  isSubmitting.value = true;
+
+  try {
+    // Track form submission in Google Analytics
+    trackFormSubmission("contact_form", {
+      service_type: formData.service || "not_specified",
+    });
+
+    // Here you would typically send the form data to your backend
+    // For now, we'll just simulate a successful submission
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Reset form after successful submission
+    formData.name = "";
+    formData.email = "";
+    formData.phone = "";
+    formData.service = "";
+    formData.message = "";
+
+    // Show success message (you might want to implement this)
+    alert("ขอบคุณสำหรับข้อความของคุณ เราจะติดต่อกลับโดยเร็วที่สุด");
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("เกิดข้อผิดพลาด กรุณาลองอีกครั้ง");
+  } finally {
+    isSubmitting.value = false;
+  }
+};
 </script>
 
 <style scoped></style>

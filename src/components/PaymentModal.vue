@@ -467,6 +467,7 @@ import { ref, computed, watch, onMounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import stripeService from "@/services/stripeService";
 import { usePaymentStore } from "@/stores/paymentStore";
+import { trackEvent, trackPayment } from "@/utils/analyticsUtils";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -675,16 +676,22 @@ const isValidPhone = (phone) => {
   return phoneRegex.test(phone.replace(/[- ]/g, ""));
 };
 
-// Update process payment to use validation
+// Update process payment to use validation and track analytics
 const processPayment = async () => {
   // Validate form before processing payment
   if (!validateForm()) {
     // Form is invalid, don't proceed
+    trackEvent("payment_validation_failed", {
+      errors: Object.keys(validationErrors).filter(
+        (key) => validationErrors[key]
+      ),
+    });
     return;
   }
 
   // Check if Stripe is configured
   if (!stripeService.isStripeConfigured()) {
+    trackEvent("payment_system_not_configured");
     emit("payment-error", {
       message:
         locale.value === "th"
@@ -698,8 +705,36 @@ const processPayment = async () => {
     // Show loading state
     paymentStore.isProcessing = true;
 
+    // Track payment attempt
+    trackEvent("payment_attempt", {
+      package: props.packageData.title,
+      payment_type: paymentStore.paymentType,
+      payment_method: paymentStore.paymentMethod,
+      amount: paymentStore.totalAmount,
+      currency: "THB",
+    });
+
     // Process payment using the store
     await paymentStore.processPayment();
+
+    // Track successful payment
+    trackPayment({
+      transactionId: `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 10)}`,
+      value: paymentStore.totalAmount,
+      currency: "THB",
+      paymentMethod: paymentStore.paymentMethod,
+      items: [
+        {
+          id: props.packageData.id || "custom-package",
+          name: props.packageData.title,
+          category: "Website Package",
+          price: paymentStore.totalAmount,
+          quantity: 1,
+        },
+      ],
+    });
 
     // Note: If successful, Stripe will redirect to the success page
     // This code will only execute if there's no redirect
@@ -712,6 +747,14 @@ const processPayment = async () => {
     });
   } catch (error) {
     console.error("Payment processing error:", error);
+
+    // Track payment error
+    trackEvent("payment_error", {
+      error_message: error.message || "Unknown payment error",
+      payment_method: paymentStore.paymentMethod,
+      package: props.packageData.title,
+    });
+
     emit("payment-error", error);
   } finally {
     paymentStore.isProcessing = false;

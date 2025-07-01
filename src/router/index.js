@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import MainLayout from "@/layouts/MainLayout.vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import { useAuthStore } from "@/stores/authStore.js";
+import { trackPageView } from "@/utils/analyticsUtils";
 
 const routes = [
   {
@@ -168,6 +169,12 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next();
+});
+
+// Add Google Analytics tracking after each route change
+router.afterEach((to) => {
+  // Track page view in Google Analytics
+  trackPageView(to.path, to.name);
 });
 
 export default router;
