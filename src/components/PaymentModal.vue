@@ -57,6 +57,33 @@
         </div>
       </div>
 
+      <!-- Form Error Alert -->
+      <div
+        v-if="formHasErrors"
+        class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+      >
+        <div class="flex items-center">
+          <svg
+            class="w-5 h-5 text-red-400 mr-2"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="text-sm text-red-600">
+            {{
+              locale.value === "th"
+                ? "กรุณากรอกข้อมูลให้ครบถ้วน"
+                : "Please fill in all required fields"
+            }}
+          </span>
+        </div>
+      </div>
+
       <!-- Customer Information Form -->
       <div class="bg-gray-50 rounded-lg p-4 mb-6">
         <h4 class="font-semibold text-[#051d40] mb-4">
@@ -72,7 +99,7 @@
             <input
               v-model="paymentStore.customerInfo.name"
               type="text"
-              required
+              novalidate
               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
               :class="
                 validationErrors.name ? 'border-red-500' : 'border-gray-300'
@@ -80,6 +107,7 @@
               :placeholder="
                 locale.value === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'
               "
+              @blur="validateField('name')"
             />
             <p v-if="validationErrors.name" class="mt-1 text-sm text-red-600">
               {{ validationErrors.name }}
@@ -94,12 +122,13 @@
             <input
               v-model="paymentStore.customerInfo.email"
               type="email"
-              required
+              novalidate
               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
               :class="
                 validationErrors.email ? 'border-red-500' : 'border-gray-300'
               "
               :placeholder="locale.value === 'th' ? 'อีเมล' : 'Email Address'"
+              @blur="validateField('email')"
             />
             <p v-if="validationErrors.email" class="mt-1 text-sm text-red-600">
               {{ validationErrors.email }}
@@ -114,7 +143,7 @@
             <input
               v-model="paymentStore.customerInfo.phone"
               type="tel"
-              required
+              novalidate
               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fbc646]"
               :class="
                 validationErrors.phone ? 'border-red-500' : 'border-gray-300'
@@ -122,6 +151,7 @@
               :placeholder="
                 locale.value === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'
               "
+              @blur="validateField('phone')"
             />
             <p v-if="validationErrors.phone" class="mt-1 text-sm text-red-600">
               {{ validationErrors.phone }}
@@ -424,7 +454,7 @@
       <!-- Action Buttons -->
       <div class="space-y-3">
         <button
-          @click="processPayment"
+          @click.prevent="processPayment"
           :disabled="
             !paymentStore.paymentMethod ||
             paymentStore.isProcessing ||
@@ -483,6 +513,11 @@ const { t, locale } = useI18n();
 
 // Use payment store
 const paymentStore = usePaymentStore();
+
+// Track if form has any errors (for displaying the error alert)
+const formHasErrors = computed(() => {
+  return Object.values(validationErrors).some((error) => error !== "");
+});
 
 // Watch for package data changes
 watch(
@@ -608,59 +643,68 @@ const validationErrors = reactive({
   payment: "",
 });
 
+// Validate a specific field
+const validateField = (field) => {
+  switch (field) {
+    case "name":
+      if (!paymentStore.customerInfo.name.trim()) {
+        validationErrors.name =
+          locale.value === "th" ? "กรุณากรอกชื่อ" : "Please enter your name";
+      } else {
+        validationErrors.name = "";
+      }
+      break;
+    case "email":
+      if (!paymentStore.customerInfo.email.trim()) {
+        validationErrors.email =
+          locale.value === "th" ? "กรุณากรอกอีเมล" : "Please enter your email";
+      } else if (!isValidEmail(paymentStore.customerInfo.email)) {
+        validationErrors.email =
+          locale.value === "th"
+            ? "รูปแบบอีเมลไม่ถูกต้อง"
+            : "Invalid email format";
+      } else {
+        validationErrors.email = "";
+      }
+      break;
+    case "phone":
+      if (!paymentStore.customerInfo.phone.trim()) {
+        validationErrors.phone =
+          locale.value === "th"
+            ? "กรุณากรอกเบอร์โทรศัพท์"
+            : "Please enter your phone number";
+      } else if (!isValidPhone(paymentStore.customerInfo.phone)) {
+        validationErrors.phone =
+          locale.value === "th"
+            ? "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
+            : "Invalid phone number format";
+      } else {
+        validationErrors.phone = "";
+      }
+      break;
+    case "payment":
+      if (!paymentStore.paymentMethod) {
+        validationErrors.payment =
+          locale.value === "th"
+            ? "กรุณาเลือกวิธีการชำระเงิน"
+            : "Please select a payment method";
+      } else {
+        validationErrors.payment = "";
+      }
+      break;
+  }
+};
+
 // Add validation methods
 const validateForm = () => {
-  let isValid = true;
+  // Validate each field
+  validateField("name");
+  validateField("email");
+  validateField("phone");
+  validateField("payment");
 
-  // Reset validation errors
-  validationErrors.name = "";
-  validationErrors.email = "";
-  validationErrors.phone = "";
-  validationErrors.payment = "";
-
-  // Validate name
-  if (!paymentStore.customerInfo.name.trim()) {
-    validationErrors.name =
-      locale.value === "th" ? "กรุณากรอกชื่อ" : "Please enter your name";
-    isValid = false;
-  }
-
-  // Validate email
-  if (!paymentStore.customerInfo.email.trim()) {
-    validationErrors.email =
-      locale.value === "th" ? "กรุณากรอกอีเมล" : "Please enter your email";
-    isValid = false;
-  } else if (!isValidEmail(paymentStore.customerInfo.email)) {
-    validationErrors.email =
-      locale.value === "th" ? "รูปแบบอีเมลไม่ถูกต้อง" : "Invalid email format";
-    isValid = false;
-  }
-
-  // Validate phone
-  if (!paymentStore.customerInfo.phone.trim()) {
-    validationErrors.phone =
-      locale.value === "th"
-        ? "กรุณากรอกเบอร์โทรศัพท์"
-        : "Please enter your phone number";
-    isValid = false;
-  } else if (!isValidPhone(paymentStore.customerInfo.phone)) {
-    validationErrors.phone =
-      locale.value === "th"
-        ? "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
-        : "Invalid phone number format";
-    isValid = false;
-  }
-
-  // Validate payment method
-  if (!paymentStore.paymentMethod) {
-    validationErrors.payment =
-      locale.value === "th"
-        ? "กรุณาเลือกวิธีการชำระเงิน"
-        : "Please select a payment method";
-    isValid = false;
-  }
-
-  return isValid;
+  // Check if any field has an error
+  return !formHasErrors.value;
 };
 
 // Email validation helper
@@ -777,50 +821,6 @@ watch(
       validationErrors.email = "";
       validationErrors.phone = "";
       validationErrors.payment = "";
-    }
-  }
-);
-
-// Add watchers for real-time validation
-watch(
-  () => paymentStore.customerInfo.name,
-  (newValue) => {
-    if (newValue.trim()) {
-      validationErrors.name = "";
-    }
-  }
-);
-
-watch(
-  () => paymentStore.customerInfo.email,
-  (newValue) => {
-    if (newValue.trim()) {
-      if (isValidEmail(newValue)) {
-        validationErrors.email = "";
-      } else if (newValue.length > 5) {
-        // Only show email format error after user has typed enough characters
-        validationErrors.email =
-          locale.value === "th"
-            ? "รูปแบบอีเมลไม่ถูกต้อง"
-            : "Invalid email format";
-      }
-    }
-  }
-);
-
-watch(
-  () => paymentStore.customerInfo.phone,
-  (newValue) => {
-    if (newValue.trim()) {
-      if (isValidPhone(newValue)) {
-        validationErrors.phone = "";
-      } else if (newValue.length > 5) {
-        // Only show phone format error after user has typed enough digits
-        validationErrors.phone =
-          locale.value === "th"
-            ? "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
-            : "Invalid phone number format";
-      }
     }
   }
 );
