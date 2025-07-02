@@ -314,7 +314,14 @@
             </div>
             <div class="flex items-center">
               <span class="text-blue-800 font-medium mr-2">📱 Line:</span>
-              <span class="text-blue-800">@websdee</span>
+              <a
+                href="https://lin.ee/2CKfvTq"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:text-blue-800 underline"
+              >
+                @298zsfkg
+              </a>
             </div>
           </div>
           <div class="mt-3 p-3 bg-white rounded border-l-4 border-blue-400">
@@ -637,7 +644,7 @@ ${"-".repeat(30)}
 
 ${locale.value === "th" ? "ส่งสลิปการโอนมาที่" : "Send transfer slip to"}:
 📧 Email: payment@websdee.com
-📱 Line: @websdee
+📱 Line: @298zsfkg
 
 ${locale.value === "th" ? "หมายเหตุ" : "Note"}: ${
       locale.value === "th"
