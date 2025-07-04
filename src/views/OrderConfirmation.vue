@@ -409,6 +409,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useLanguage } from "@/composables/useLanguage";
 import { usePaymentStore } from "@/stores/paymentStore";
+import { trackOrderConfirmation } from "@/utils/analyticsUtils";
 
 const route = useRoute();
 const router = useRouter();
@@ -849,6 +850,11 @@ onMounted(async () => {
     } else if (isBankTransfer.value) {
       // Bank transfer is already handled by the payment store
       // Data should already be in currentPaymentDetails
+    }
+
+    // Track order confirmation for Firebase Analytics
+    if (orderDetails.value) {
+      trackOrderConfirmation(orderDetails.value);
     }
   } catch (error) {
     console.error("Error initializing order confirmation:", error);
