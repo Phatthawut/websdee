@@ -1,80 +1,76 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, googleProvider, db } from "@/services/firebase.js";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "@/services/firebase";
+import secureLogger from "@/utils/secureLogger";
 
 export const useAuthStore = defineStore("auth", () => {
   // State
   const user = ref(null);
   const userProfile = ref(null);
-  const loading = ref(true);
-  const error = ref(null);
+  const isLoading = ref(true);
   const isInitialized = ref(false);
 
   // Getters
   const isAuthenticated = computed(() => !!user.value);
   const isAdmin = computed(() => userProfile.value?.role === "admin");
-  const isEditor = computed(
-    () =>
-      userProfile.value?.role === "editor" ||
-      userProfile.value?.role === "admin"
-  );
-  const isPending = computed(() => userProfile.value?.role === "pending");
-  const canCreateArticles = computed(() => isEditor.value);
-  const canDeleteArticles = computed(() => isAdmin.value);
-
-  // Profile picture with fallback
-  const userAvatarUrl = computed(() => {
-    const photoURL = user.value?.photoURL || userProfile.value?.photoURL;
-    return photoURL || "/default-avatar.png";
+  const userDisplayName = computed(() => {
+    return userProfile.value?.displayName || user.value?.displayName || "User";
   });
 
-  // Initialize auth state listener
+  // Initialize auth listener
   const initializeAuth = () => {
-    console.log("🔥 Initializing Firebase Auth...");
+    secureLogger.log("🔥 Initializing Firebase Auth...");
+
     return new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        console.log(
-          "🔥 Auth state changed:",
-          firebaseUser ? "User found" : "No user"
-        );
-        loading.value = true;
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        async (authUser) => {
+          try {
+            if (authUser) {
+              // User is signed in
+              user.value = {
+                uid: authUser.uid,
+                email: authUser.email,
+                displayName: authUser.displayName,
+                photoURL: authUser.photoURL,
+                emailVerified: authUser.emailVerified,
+              };
 
-        try {
-          if (firebaseUser) {
-            console.log(
-              "🔥 Processing authenticated user:",
-              firebaseUser.email
-            );
-            // Set user data
-            user.value = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoURL: firebaseUser.photoURL,
-            };
-
-            // Load user profile from Firestore
-            await loadUserProfile(firebaseUser.uid);
-          } else {
-            console.log("🔥 No user found, clearing data");
-            // Clear user data if no user
-            user.value = null;
-            userProfile.value = null;
+              // Load additional user profile from Firestore
+              await loadUserProfile(authUser.uid);
+            } else {
+              // User is signed out
+              secureLogger.log("🔥 No user found, clearing data");
+              user.value = null;
+              userProfile.value = null;
+            }
+          } catch (err) {
+            secureLogger.error("🔥 Auth state change error", err);
+          } finally {
+            isLoading.value = false;
+            if (!isInitialized.value) {
+              secureLogger.log("🔥 Auth initialization complete");
+              isInitialized.value = true;
+              resolve();
+            }
           }
-        } catch (err) {
-          console.error("🔥 Auth state change error:", err);
-          error.value = err.message;
-        } finally {
-          loading.value = false;
+        },
+        (err) => {
+          secureLogger.error("🔥 Auth state change error", err);
+          isLoading.value = false;
           if (!isInitialized.value) {
-            console.log("🔥 Auth initialization complete");
             isInitialized.value = true;
             resolve();
           }
         }
-      });
+      );
 
       // Return unsubscribe function
       return unsubscribe;
@@ -85,143 +81,114 @@ export const useAuthStore = defineStore("auth", () => {
   const loadUserProfile = async (uid) => {
     try {
       const userDoc = await getDoc(doc(db, "users", uid));
-
       if (userDoc.exists()) {
         userProfile.value = userDoc.data();
       } else {
-        // Create default user profile for first-time admin team members
+        // Create default user profile
         const defaultProfile = {
           uid,
-          email: user.value.email,
-          displayName: user.value.displayName,
-          photoURL: user.value.photoURL,
-          role: "pending", // Default role - admin needs to approve
-          permissions: [],
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          lastLoginAt: serverTimestamp(),
+          email: user.value?.email,
+          displayName: user.value?.displayName,
+          photoURL: user.value?.photoURL,
+          role: "user",
+          createdAt: new Date(),
+          lastLogin: new Date(),
         };
 
         await setDoc(doc(db, "users", uid), defaultProfile);
         userProfile.value = defaultProfile;
       }
-
-      // Update last login time
-      await setDoc(
-        doc(db, "users", uid),
-        {
-          lastLoginAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
     } catch (err) {
-      console.error("Error loading user profile:", err);
-      error.value = "Failed to load user profile";
+      secureLogger.error("Error loading user profile", err);
     }
   };
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    loading.value = true;
-    error.value = null;
-
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const firebaseUser = result.user;
-      return firebaseUser;
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+
+      // Update last login
+      await updateDoc(doc(db, "users", result.user.uid), {
+        lastLogin: new Date(),
+      });
+
+      secureLogger.log("Google sign-in successful", { uid: result.user.uid });
+      return result;
     } catch (err) {
-      console.error("Google sign-in error:", err);
-      error.value = err.message;
+      secureLogger.error("Google sign-in error", err);
       throw err;
-    } finally {
-      loading.value = false;
     }
   };
 
   // Sign out
-  const logout = async () => {
+  const signOutUser = async () => {
     try {
       await signOut(auth);
       user.value = null;
       userProfile.value = null;
-      error.value = null;
+      secureLogger.log("User signed out successfully");
     } catch (err) {
-      console.error("Sign out error:", err);
-      error.value = err.message;
+      secureLogger.error("Sign out error", err);
       throw err;
     }
   };
 
-  // Check if user has specific permission
-  const hasPermission = (permission) => {
-    return userProfile.value?.permissions?.includes(permission) || false;
+  // Check if user has specific role
+  const hasRole = (role) => {
+    return userProfile.value?.role === role;
   };
 
-  // Check if user can access admin area
-  const canAccessAdmin = computed(() => {
-    return isAuthenticated.value && (isAdmin.value || isEditor.value);
-  });
-
-  // Clear error
-  const clearError = () => {
-    error.value = null;
+  // Check if user has admin privileges
+  const isUserAdmin = () => {
+    return hasRole("admin");
   };
 
   // Update user role (admin only)
-  const updateUserRole = async (targetUserId, newRole, permissions = []) => {
-    if (!isAdmin.value) {
-      throw new Error("Only admins can update user roles");
-    }
-
+  const updateUserRole = async (uid, newRole) => {
     try {
-      await setDoc(
-        doc(db, "users", targetUserId),
-        {
-          role: newRole,
-          permissions,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-
-      // Refresh current user profile if updating own role
-      if (targetUserId === user.value?.uid) {
-        await loadUserProfile(targetUserId);
+      // Check if current user is admin
+      if (!isUserAdmin()) {
+        throw new Error("Insufficient permissions");
       }
 
-      return true;
+      await updateDoc(doc(db, "users", uid), {
+        role: newRole,
+        updatedAt: new Date(),
+      });
+
+      // If updating current user's role, refresh profile
+      if (uid === user.value?.uid) {
+        await loadUserProfile(uid);
+      }
+
+      secureLogger.log("User role updated successfully", { uid, newRole });
     } catch (err) {
-      console.error("Error updating user role:", err);
+      secureLogger.error("Error updating user role", err);
       throw err;
     }
   };
 
-  // Return all state, getters, and actions
   return {
     // State
     user,
     userProfile,
-    loading,
-    error,
+    isLoading,
     isInitialized,
 
     // Getters
     isAuthenticated,
     isAdmin,
-    isEditor,
-    isPending,
-    canCreateArticles,
-    canDeleteArticles,
-    canAccessAdmin,
-    userAvatarUrl,
+    userDisplayName,
 
     // Actions
     initializeAuth,
-    signInWithGoogle,
-    logout,
     loadUserProfile,
-    hasPermission,
+    signInWithGoogle,
+    signOutUser,
+    hasRole,
+    isUserAdmin,
     updateUserRole,
-    clearError,
   };
 });

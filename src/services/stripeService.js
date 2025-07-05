@@ -1,11 +1,12 @@
 import { loadStripe } from "@stripe/stripe-js";
+import secureLogger from "@/utils/secureLogger";
 
 // Initialize Stripe with your publishable key
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 // Log warning if key is missing
 if (!stripePublishableKey) {
-  console.warn(
+  secureLogger.warn(
     "Stripe publishable key is missing. Payment features will not work."
   );
 }
@@ -99,32 +100,31 @@ export const createPaymentIntent = async (
   }
 
   try {
-    // Use Firebase Functions URL for production or localhost for emulator
-    const apiUrl = "https://createpaymentintent-vno4kd46yq-as.a.run.app";
+    const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error("Stripe not initialized");
+    }
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch("/api/create-payment-intent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: amount * 100, // Stripe uses cents
-        currency: currency.toLowerCase(),
-        payment_method_types: paymentMethodTypes,
-        metadata: {
-          vat_included: "false",
-          ...metadata,
-        },
+        amount,
+        currency,
+        metadata,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create payment intent");
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const { clientSecret } = await response.json();
+    return { clientSecret };
   } catch (error) {
-    console.error("Error creating payment intent:", error);
+    secureLogger.error("Error creating payment intent", error);
     throw error;
   }
 };
@@ -132,27 +132,30 @@ export const createPaymentIntent = async (
 // Create subscription for maintenance plans
 export const createSubscription = async (priceId, customerId) => {
   try {
-    // Use Firebase Functions URL for production or localhost for emulator
-    const apiUrl = "https://createsubscription-vno4kd46yq-as.a.run.app";
+    const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error("Stripe not initialized");
+    }
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch("/api/create-subscription", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        price_id: priceId,
-        customer_id: customerId,
+        priceId,
+        customerId,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create subscription");
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const subscription = await response.json();
+    return subscription;
   } catch (error) {
-    console.error("Error creating subscription:", error);
+    secureLogger.error("Error creating subscription", error);
     throw error;
   }
 };
@@ -214,27 +217,37 @@ export const processPayment = async (paymentData) => {
   }
 
   try {
-    const { amount, currency, paymentType, paymentMethodType, metadata } =
-      paymentData;
+    const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error("Stripe not initialized");
+    }
 
-    // Create a checkout session and redirect to Stripe Checkout
+    secureLogger.log("Processing payment", {
+      paymentType: paymentData.paymentType,
+      currency: paymentData.currency,
+      amount: "***", // Mask the amount
+    });
+
+    // Create checkout session
     const session = await createCheckoutSession(
-      amount,
-      currency,
-      [paymentMethodType],
-      metadata
+      paymentData.amount,
+      paymentData.currency,
+      [paymentData.paymentMethodType],
+      paymentData.metadata
     );
 
-    // Redirect to the Stripe Checkout page
-    window.location.href = session.url;
+    // Redirect to Stripe Checkout
+    const result = await stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
 
-    // Return a placeholder result since we're redirecting
-    return { paymentIntent: { status: "requires_action" } };
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
 
-    // We've already redirected, this code won't execute
-    // But we keep it for completeness
+    return result;
   } catch (error) {
-    console.error("Error processing payment:", error);
+    secureLogger.error("Error processing payment", error);
     throw error;
   }
 };
@@ -242,10 +255,12 @@ export const processPayment = async (paymentData) => {
 // Create customer for subscription billing
 export const createCustomer = async (customerData) => {
   try {
-    // Use Firebase Functions URL for production or localhost for emulator
-    const apiUrl = "https://createcustomer-vno4kd46yq-as.a.run.app";
+    const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error("Stripe not initialized");
+    }
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch("/api/create-customer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -254,12 +269,16 @@ export const createCustomer = async (customerData) => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create customer");
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const customer = await response.json();
+    secureLogger.log("Customer created successfully", {
+      customerId: customer.id,
+    });
+    return customer;
   } catch (error) {
-    console.error("Error creating customer:", error);
+    secureLogger.error("Error creating customer", error);
     throw error;
   }
 };

@@ -1,3 +1,5 @@
+import secureLogger from "@/utils/secureLogger";
+
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 const UNSPLASH_API_URL = "https://api.unsplash.com";
 
@@ -7,18 +9,18 @@ const UNSPLASH_API_URL = "https://api.unsplash.com";
 class UnsplashService {
   constructor() {
     if (!UNSPLASH_ACCESS_KEY) {
-      console.warn(
+      secureLogger.warn(
         "Unsplash access key not found. Please add VITE_UNSPLASH_ACCESS_KEY to your .env file"
       );
     }
   }
 
   /**
-   * Search for photos based on query
-   * @param {string} query - Search term
+   * Search for photos by query
+   * @param {string} query - Search query
    * @param {number} page - Page number (default: 1)
    * @param {number} perPage - Number of photos per page (default: 12, max: 30)
-   * @returns {Promise<Object>} - Search results
+   * @returns {Promise<Array>} - Array of photos
    */
   async searchPhotos(query, page = 1, perPage = 12) {
     if (!UNSPLASH_ACCESS_KEY) {
@@ -26,30 +28,37 @@ class UnsplashService {
     }
 
     try {
-      const response = await fetch(
-        `${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(
-          query
-        )}&page=${page}&per_page=${perPage}&orientation=landscape`,
-        {
-          headers: {
-            Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
-            "Accept-Version": "v1",
-          },
-        }
-      );
+      const url = `${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(
+        query
+      )}&page=${page}&per_page=${perPage}`;
+
+      secureLogger.logApiUrl("Searching Unsplash photos", url);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
+          "Accept-Version": "v1",
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`Unsplash API error: ${response.status}`);
       }
 
       const data = await response.json();
-      return {
-        results: data.results.map((photo) => this.formatPhoto(photo)),
-        total: data.total,
-        totalPages: data.total_pages,
-      };
+      const formattedPhotos = data.results.map((photo) =>
+        this.formatPhoto(photo)
+      );
+
+      secureLogger.log("Unsplash search completed", {
+        query,
+        count: formattedPhotos.length,
+        page,
+      });
+
+      return formattedPhotos;
     } catch (error) {
-      console.error("Error searching Unsplash photos:", error);
+      secureLogger.error("Error searching Unsplash photos", error);
       throw error;
     }
   }
@@ -66,9 +75,10 @@ class UnsplashService {
     }
 
     try {
-      console.log("Fetching featured photos from Unsplash API...");
+      secureLogger.log("Fetching featured photos from Unsplash API");
+
       const url = `${UNSPLASH_API_URL}/photos?page=${page}&per_page=${perPage}&order_by=popular`;
-      console.log("API URL:", url);
+      secureLogger.logApiUrl("API URL", url);
 
       const response = await fetch(url, {
         headers: {
@@ -77,20 +87,21 @@ class UnsplashService {
         },
       });
 
-      console.log("API Response status:", response.status);
+      secureLogger.log("API Response status", { status: response.status });
+
       if (!response.ok) {
         throw new Error(`Unsplash API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Raw API data received:", data.length, "photos");
+      secureLogger.log("Raw API data received", { count: data.length });
 
       const formattedPhotos = data.map((photo) => this.formatPhoto(photo));
-      console.log("Formatted photos:", formattedPhotos.length);
+      secureLogger.log("Formatted photos", { count: formattedPhotos.length });
 
       return formattedPhotos;
     } catch (error) {
-      console.error("Error fetching featured Unsplash photos:", error);
+      secureLogger.error("Error fetching featured Unsplash photos", error);
       throw error;
     }
   }
@@ -133,7 +144,7 @@ class UnsplashService {
       });
       return downloadUrl;
     } catch (error) {
-      console.error("Error tracking download:", error);
+      secureLogger.error("Error tracking download", error);
       return downloadUrl;
     }
   }

@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import stripeService from "@/services/stripeService";
 import { db } from "@/services/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import secureLogger from "@/utils/secureLogger";
 
 export const usePaymentStore = defineStore("payment", () => {
   // State
@@ -172,7 +173,7 @@ export const usePaymentStore = defineStore("payment", () => {
       // Note: Stripe will redirect to success page
       return true;
     } catch (error) {
-      console.error("Payment error:", error);
+      secureLogger.error("Payment processing failed", error);
       paymentStatus.value = "failed";
       throw error;
     } finally {
@@ -202,38 +203,46 @@ export const usePaymentStore = defineStore("payment", () => {
         throw new Error("Failed to store payment data");
       }
 
-      // Add to local payment history
-      paymentHistory.value.push(orderData);
-
-      // Set current payment details
-      currentPaymentDetails.value = orderData;
-
-      return await response.json();
+      const result = await response.json();
+      secureLogger.log("Payment data stored successfully", {
+        status: "success",
+      });
+      return result;
     } catch (error) {
-      console.error("Error storing payment:", error);
+      secureLogger.error("Error storing payment data", error);
       throw error;
     }
   }
 
   async function storeBankTransferData() {
     try {
-      // Generate reference number for bank transfer
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(2, 8);
-      const reference = `BT-${timestamp}-${random}`.toUpperCase();
+      // Generate a reference number
+      const reference = `BT${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 6)
+        .toUpperCase()}`;
 
-      // Create bank transfer record for Firestore
+      // Create bank transfer record
       const bankTransferRecord = {
+        // System information
         id: reference,
         reference_number: reference,
-        type: "bank_transfer",
-        status: "pending_payment",
         payment_method: "bank_transfer",
-        amount: totalAmount.value,
-        currency: "THB",
+        status: "pending",
         created_at: new Date(),
         updated_at: new Date(),
-        source: "websdee_website",
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+
+        // Transaction details
+        amount: totalAmount.value,
+        currency: "THB",
+        payment_type: paymentType.value,
+        vat_amount: vatAmount.value,
+        vat_rate: "0%",
+        base_amount: baseAmount.value,
+        addons_total: addonsTotal.value,
+        final_amount: totalAmount.value,
+        discount_applied: paymentType.value === "full" ? "5%" : "0%",
 
         // Customer information
         customer: {
@@ -303,9 +312,10 @@ export const usePaymentStore = defineStore("payment", () => {
       // Set current payment details
       currentPaymentDetails.value = paymentDetails;
 
+      secureLogger.log("Bank transfer data stored successfully", { reference });
       return paymentDetails;
     } catch (error) {
-      console.error("Error storing bank transfer data:", error);
+      secureLogger.error("Error storing bank transfer data", error);
       throw error;
     }
   }
@@ -327,21 +337,20 @@ export const usePaymentStore = defineStore("payment", () => {
       // For security reasons, we need to retrieve session details from our backend
       const apiUrl = `https://asia-southeast1-websdee-blog.cloudfunctions.net/getSessionDetails?session_id=${sessionId}`;
 
-      console.log("Retrieving session details from:", apiUrl);
+      secureLogger.logApiUrl("Retrieving session details from", apiUrl);
 
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
-        console.error(
-          "Failed to retrieve session details:",
-          response.status,
-          response.statusText
-        );
+        secureLogger.error("Failed to retrieve session details", {
+          status: response.status,
+          statusText: response.statusText,
+        });
         throw new Error("Failed to retrieve session details");
       }
 
       const sessionDetails = await response.json();
-      console.log("Retrieved session details:", sessionDetails);
+      secureLogger.logPayment("Retrieved session details", sessionDetails);
 
       // Update current payment details
       if (sessionDetails) {
@@ -364,14 +373,14 @@ export const usePaymentStore = defineStore("payment", () => {
           metadata: sessionDetails.metadata || {},
         };
 
-        console.log("Created order data from session:", orderData);
+        secureLogger.logPayment("Created order data from session", orderData);
         currentPaymentDetails.value = orderData;
         return orderData;
       }
 
       return null;
     } catch (error) {
-      console.error("Error retrieving session details:", error);
+      secureLogger.error("Error retrieving session details", error);
       return null;
     }
   }
