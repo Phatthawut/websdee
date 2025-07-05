@@ -36,7 +36,7 @@
         <img
           :src="articleStore.currentArticle?.image"
           :alt="articleStore.currentArticle?.title?.en || 'Article'"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover object-center"
         />
 
         <!-- Breadcrumb -->
@@ -231,7 +231,7 @@
                 <img
                   :src="relatedArticle.image"
                   :alt="relatedArticle.title.en"
-                  class="w-full h-40 md:h-48 object-cover"
+                  class="w-full h-40 md:h-48 object-cover object-center"
                 />
                 <div class="p-4 md:p-6">
                   <span

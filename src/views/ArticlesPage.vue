@@ -103,7 +103,7 @@
               <img
                 :src="article.image"
                 :alt="article.title.en"
-                class="w-full h-48 sm:h-52 md:h-48 object-cover"
+                class="w-full h-48 sm:h-52 md:h-48 object-cover object-center"
               />
             </div>
             <div class="p-4 md:p-6 flex flex-col flex-grow">
