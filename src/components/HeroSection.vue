@@ -184,9 +184,10 @@ onUnmounted(() => {
 
 .headerbg {
   background-image: url("@/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp");
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
+  background-attachment: fixed;
 }
 
 /* Add smooth transition for parallax effect */

@@ -4,7 +4,7 @@
   >
     <!-- Background image Photo by Sandro Katalina on Unsplash -->
     <div
-      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(src/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp)]"
+      class="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat bg-[url(src/assets/images/sandro-katalina-k1bO_VTiZSs-unsplash.webp)] bg-fixed"
       loading="lazy"
     ></div>
 
