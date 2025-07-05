@@ -16,13 +16,31 @@ export const useAuthStore = defineStore("auth", () => {
   const userProfile = ref(null);
   const isLoading = ref(true);
   const isInitialized = ref(false);
+  const error = ref(null);
+  const loading = ref(false);
 
   // Getters
   const isAuthenticated = computed(() => !!user.value);
   const isAdmin = computed(() => userProfile.value?.role === "admin");
+  const isPending = computed(() => userProfile.value?.role === "pending");
+  const canAccessAdmin = computed(
+    () =>
+      userProfile.value?.role === "admin" ||
+      userProfile.value?.role === "editor"
+  );
   const userDisplayName = computed(() => {
     return userProfile.value?.displayName || user.value?.displayName || "User";
   });
+
+  // Clear error
+  const clearError = () => {
+    error.value = null;
+  };
+
+  // Set error
+  const setError = (errorMessage) => {
+    error.value = errorMessage;
+  };
 
   // Initialize auth listener
   const initializeAuth = () => {
@@ -53,6 +71,7 @@ export const useAuthStore = defineStore("auth", () => {
             }
           } catch (err) {
             secureLogger.error("🔥 Auth state change error", err);
+            setError("Authentication error occurred. Please try again.");
           } finally {
             isLoading.value = false;
             if (!isInitialized.value) {
@@ -64,6 +83,7 @@ export const useAuthStore = defineStore("auth", () => {
         },
         (err) => {
           secureLogger.error("🔥 Auth state change error", err);
+          setError("Authentication error occurred. Please try again.");
           isLoading.value = false;
           if (!isInitialized.value) {
             isInitialized.value = true;
@@ -84,13 +104,13 @@ export const useAuthStore = defineStore("auth", () => {
       if (userDoc.exists()) {
         userProfile.value = userDoc.data();
       } else {
-        // Create default user profile
+        // Create default user profile with pending status
         const defaultProfile = {
           uid,
           email: user.value?.email,
           displayName: user.value?.displayName,
           photoURL: user.value?.photoURL,
-          role: "user",
+          role: "pending", // New users start as pending
           createdAt: new Date(),
           lastLogin: new Date(),
         };
@@ -100,12 +120,16 @@ export const useAuthStore = defineStore("auth", () => {
       }
     } catch (err) {
       secureLogger.error("Error loading user profile", err);
+      setError("Failed to load user profile. Please try again.");
     }
   };
 
   // Sign in with Google
   const signInWithGoogle = async () => {
     try {
+      loading.value = true;
+      clearError();
+
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
 
@@ -118,20 +142,40 @@ export const useAuthStore = defineStore("auth", () => {
       return result;
     } catch (err) {
       secureLogger.error("Google sign-in error", err);
+
+      // Handle specific errors
+      if (err.code === "auth/popup-closed-by-user") {
+        setError("Sign-in was cancelled. Please try again.");
+      } else if (err.code === "auth/popup-blocked") {
+        setError("Pop-up was blocked. Please enable pop-ups and try again.");
+      } else if (err.code === "auth/network-request-failed") {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        setError("Sign-in failed. Please try again.");
+      }
+
       throw err;
+    } finally {
+      loading.value = false;
     }
   };
 
   // Sign out
   const signOutUser = async () => {
     try {
+      loading.value = true;
+      clearError();
+
       await signOut(auth);
       user.value = null;
       userProfile.value = null;
       secureLogger.log("User signed out successfully");
     } catch (err) {
       secureLogger.error("Sign out error", err);
+      setError("Sign out failed. Please try again.");
       throw err;
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -166,6 +210,7 @@ export const useAuthStore = defineStore("auth", () => {
       secureLogger.log("User role updated successfully", { uid, newRole });
     } catch (err) {
       secureLogger.error("Error updating user role", err);
+      setError("Failed to update user role. Please try again.");
       throw err;
     }
   };
@@ -176,13 +221,19 @@ export const useAuthStore = defineStore("auth", () => {
     userProfile,
     isLoading,
     isInitialized,
+    error,
+    loading,
 
     // Getters
     isAuthenticated,
     isAdmin,
+    isPending,
+    canAccessAdmin,
     userDisplayName,
 
     // Actions
+    clearError,
+    setError,
     initializeAuth,
     loadUserProfile,
     signInWithGoogle,
