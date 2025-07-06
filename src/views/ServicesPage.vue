@@ -403,6 +403,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PaymentModal from "@/components/PaymentModal.vue";
+import secureLogger from "@/utils/secureLogger";
 
 const { t, locale } = useI18n();
 
@@ -444,7 +445,7 @@ const closePaymentModal = () => {
 };
 
 const handlePaymentSuccess = (paymentData) => {
-  console.log("Payment successful:", paymentData);
+  secureLogger.log("Payment successful");
 
   // Show success message
   alert(

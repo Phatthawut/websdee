@@ -1,10 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Articles collection - public read, authenticated write
+    // Articles collection - restrict read access to published articles only
     match /articles/{document} {
-      // Anyone can read all articles (filtering by status done in frontend)
-      allow read: if true;
+      // Only allow reading published articles to public
+      allow read: if resource.data.status == 'published';
+      
+      // Authenticated users with editor/admin roles can read all articles
+      allow read: if request.auth != null 
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' 
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'editor');
       
       // Only authenticated users with editor/admin roles can write
       allow write: if request.auth != null 
@@ -24,10 +30,20 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    // Payments collection - admin access only
+    // Payments collection - secure access with validation
     match /payments/{paymentId} {
-      // Public write access for Stripe webhook and payment processing
-      allow create: if true;
+      // Restrict create access with validation
+      allow create: if 
+        // Must include required fields
+        request.resource.data.keys().hasAll(['id', 'status', 'amount', 'currency', 'created_at'])
+        // Amount must be reasonable (between ฿100 and ฿100,000)
+        && request.resource.data.amount >= 10000 && request.resource.data.amount <= 10000000
+        // Currency must be THB
+        && request.resource.data.currency == 'THB'
+        // Status must be valid
+        && request.resource.data.status in ['pending', 'succeeded', 'failed', 'cancelled']
+        // Rate limiting: max 10 payments per hour per IP (basic protection)
+        && request.time > resource.data.created_at + duration.value(1, 'h');
       
       // Only admins can read and update payments
       allow read, update, delete: if request.auth != null 

@@ -12,11 +12,12 @@
 
       <!-- Desktop Navigation -->
       <div class="hidden lg:flex items-center space-x-8">
+        <!--
         <router-link
           to="/"
           class="text-gray-700 hover:text-blue-700 font-medium"
           >{{ $t("nav.home") }}</router-link
-        >
+        > -->
         <router-link
           to="/solutions"
           class="text-gray-700 hover:text-blue-700 font-medium"
@@ -37,11 +38,12 @@
           class="text-gray-700 hover:text-blue-700 font-medium"
           >{{ $t("nav.articles") }}</router-link
         >
+        <!--
         <router-link
           to="/contact"
           class="text-gray-700 hover:text-blue-700 font-medium"
           >{{ $t("nav.contact") }}</router-link
-        >
+        > -->
       </div>
 
       <!-- Contact Info and Button -->

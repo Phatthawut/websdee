@@ -98,6 +98,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { loadStripe } from "@stripe/stripe-js";
 import { usePaymentStore } from "@/stores/paymentStore";
+import secureLogger from "@/utils/secureLogger";
 
 const route = useRoute();
 const isLoading = ref(true);
@@ -141,15 +142,13 @@ const formatCurrency = (amount) => {
 
 onMounted(async () => {
   try {
-    // Get the session_id from URL
-    const sessionId = new URLSearchParams(window.location.search).get(
-      "session_id"
-    );
+    const sessionId = route.query.session_id;
 
     if (sessionId) {
+      secureLogger.log("Checkout session completed", { sessionId: "***" }); // Mask session ID
+
       // For checkout session, we assume it was successful if we got redirected here
       paymentStore.paymentStatus = "succeeded";
-      console.log("Checkout session completed:", sessionId);
 
       // Create a placeholder for payment details
       const orderData = {
@@ -175,34 +174,30 @@ onMounted(async () => {
 
       // Try to retrieve session details
       try {
-        const sessionDetails = await paymentStore.retrieveSessionDetails(
+        const orderDetails = await paymentStore.retrieveSessionDetails(
           sessionId
         );
-
-        if (sessionDetails) {
-          console.log(
-            "Session details retrieved successfully:",
-            sessionDetails
-          );
+        if (orderDetails) {
+          secureLogger.log("Order details retrieved successfully");
 
           // If we have the session details but the current payment details are still empty,
           // let's manually update them with the session data
           if (!paymentStore.currentPaymentDetails?.customer?.name) {
             const updatedOrderData = {
               ...orderData,
-              amount: sessionDetails.amount_total || 0,
-              currency: sessionDetails.currency || "thb",
+              amount: orderDetails.amount_total || 0,
+              currency: orderDetails.currency || "thb",
               customer: {
-                name: sessionDetails.metadata?.customer_name || "",
-                email: sessionDetails.metadata?.customer_email || "",
-                phone: sessionDetails.metadata?.customer_phone || "",
+                name: orderDetails.metadata?.customer_name || "",
+                email: orderDetails.metadata?.customer_email || "",
+                phone: orderDetails.metadata?.customer_phone || "",
               },
               order: {
-                payment_type: sessionDetails.metadata?.payment_type || "",
-                package_name: sessionDetails.metadata?.package_name || "",
-                final_amount: sessionDetails.amount_total || 0,
+                payment_type: orderDetails.metadata?.payment_type || "",
+                package_name: orderDetails.metadata?.package_name || "",
+                final_amount: orderDetails.amount_total || 0,
               },
-              metadata: sessionDetails.metadata || {},
+              metadata: orderDetails.metadata || {},
             };
 
             // Update the payment details
@@ -210,7 +205,7 @@ onMounted(async () => {
           }
         }
       } catch (error) {
-        console.error("Error retrieving session details:", error);
+        secureLogger.error("Error retrieving session details", error);
       }
 
       // Store payment data in Firestore
@@ -272,7 +267,7 @@ onMounted(async () => {
       }
     }
   } catch (error) {
-    console.error("Error retrieving payment status:", error);
+    secureLogger.error("Error retrieving payment status", error);
   } finally {
     isLoading.value = false;
   }

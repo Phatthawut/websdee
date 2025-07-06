@@ -215,6 +215,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
+  // Logout alias for signOutUser (for backward compatibility)
+  const logout = signOutUser;
+
   return {
     // State
     user,
@@ -238,6 +241,7 @@ export const useAuthStore = defineStore("auth", () => {
     loadUserProfile,
     signInWithGoogle,
     signOutUser,
+    logout, // Alias for signOutUser
     hasRole,
     isUserAdmin,
     updateUserRole,

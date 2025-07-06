@@ -410,6 +410,7 @@ import { useI18n } from "vue-i18n";
 import { useLanguage } from "@/composables/useLanguage";
 import { usePaymentStore } from "@/stores/paymentStore";
 import { trackOrderConfirmation } from "@/utils/analyticsUtils";
+import secureLogger from "@/utils/secureLogger";
 
 const route = useRoute();
 const router = useRouter();
@@ -584,9 +585,9 @@ function formatCurrency(amount) {
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
-    console.log("Copied to clipboard:", text);
+    secureLogger.log("Copied to clipboard");
   } catch (err) {
-    console.error("Failed to copy:", err);
+    secureLogger.error("Failed to copy", err);
     // Fallback for older browsers
     const textArea = document.createElement("textarea");
     textArea.value = text;
@@ -781,9 +782,9 @@ function copyAllDetails() {
     copyToClipboard(instructionsData.content);
 
     // Show visual feedback (you can enhance this with a toast notification)
-    console.log("Bank transfer details copied to clipboard");
+    secureLogger.log("Bank transfer details copied to clipboard");
   } catch (error) {
-    console.error("Error copying to clipboard:", error);
+    secureLogger.error("Error copying to clipboard", error);
   }
 }
 
