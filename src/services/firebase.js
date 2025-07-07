@@ -2,6 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import secureLogger from "@/utils/secureLogger";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -25,8 +27,24 @@ if (typeof window !== "undefined") {
   analytics = getAnalytics(app);
 }
 
+// Initialize Firebase App Check with reCAPTCHA v3
+let appCheck = null;
+if (typeof window !== "undefined") {
+  try {
+    appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(
+        "6LdxgXorAAAAALcig08F5g-MS0s1WDjbXBg7mD0O"
+      ),
+      isTokenAutoRefreshEnabled: true,
+    });
+    secureLogger.log("Firebase App Check initialized successfully");
+  } catch (error) {
+    secureLogger.error("Failed to initialize Firebase App Check", error);
+  }
+}
+
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
 
-export { db, auth, googleProvider, analytics };
+export { db, auth, googleProvider, analytics, appCheck };
 export default app;

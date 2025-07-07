@@ -46,6 +46,8 @@ const SENSITIVE_PATTERNS = [
   "paypal_",
   "firebase_",
   "unsplash_",
+  "recaptcha",
+  "app_check",
 ];
 
 // URLs that should be masked
