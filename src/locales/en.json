@@ -525,51 +525,40 @@
   "policies": {
     "privacy": {
       "title": "Privacy Policy",
-      "introduction": {
-        "title": "Introduction"
-      },
-      "dataCollection": {
-        "title": "The Data We Collect About You"
-      },
-      "howWeUse": {
-        "title": "How We Use Your Personal Data"
-      },
-      "cookies": {
-        "title": "Cookies"
-      },
-      "thirdParty": {
-        "title": "Third-Party Links"
-      },
-      "dataRights": {
-        "title": "Your Data Protection Rights"
-      },
-      "contact": {
-        "title": "Contact Us"
-      }
+      "introduction": { "title": "Introduction" },
+      "dataController": { "title": "Data Controller" },
+      "dataCollection": { "title": "The Data We Collect About You" },
+      "howWeUse": { "title": "How We Use Your Personal Data" },
+      "dataSharing": { "title": "Data Sharing and Third Parties" },
+      "dataSecurity": { "title": "Data Security" },
+      "dataRetention": { "title": "Data Retention" },
+      "cookies": { "title": "Cookies and Tracking Technologies" },
+      "international": { "title": "International Data Transfers" },
+      "dataRights": { "title": "Your Data Protection Rights" },
+      "children": { "title": "Children's Privacy" },
+      "changes": { "title": "Changes to This Privacy Policy" },
+      "contact": { "title": "Contact Us" }
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "introduction": { "title": "Introduction" },
+      "whatAreCookies": { "title": "What Are Cookies?" },
+      "types": { "title": "Types of Cookies We Use" },
+      "specificCookies": { "title": "Specific Cookies We Use" },
+      "control": { "title": "How to Control Cookies" },
+      "impact": { "title": "Impact of Disabling Cookies" },
+      "updates": { "title": "Updates to This Cookie Policy" },
+      "contact": { "title": "Contact Us" }
     },
     "terms": {
       "title": "Terms of Use",
-      "introduction": {
-        "title": "Introduction"
-      },
-      "license": {
-        "title": "License"
-      },
-      "userComments": {
-        "title": "User Comments"
-      },
-      "hyperlinking": {
-        "title": "Hyperlinking to our Content"
-      },
-      "liability": {
-        "title": "Liability"
-      },
-      "changes": {
-        "title": "Changes to Terms"
-      },
-      "contact": {
-        "title": "Contact Us"
-      }
+      "introduction": { "title": "Introduction" },
+      "license": { "title": "License" },
+      "userComments": { "title": "User Comments" },
+      "hyperlinking": { "title": "Hyperlinking to our Content" },
+      "liability": { "title": "Liability" },
+      "changes": { "title": "Changes to Terms" },
+      "contact": { "title": "Contact Us" }
     }
   },
   "contactForm": {

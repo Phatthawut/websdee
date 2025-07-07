@@ -144,7 +144,7 @@
             </li>
             <li>
               <router-link
-                to="/cookies"
+                to="/cookie-policy"
                 class="hover:text-white transition duration-300"
                 >Cookie Policy</router-link
               >

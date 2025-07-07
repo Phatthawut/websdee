@@ -70,6 +70,11 @@ const routes = [
         component: () => import("@/views/PrivacyPolicy.vue"),
       },
       {
+        path: "cookie-policy",
+        name: "CookiePolicy",
+        component: () => import("@/views/CookiePolicy.vue"),
+      },
+      {
         path: "terms",
         name: "TermsOfUse",
         component: () => import("@/views/TermsOfUse.vue"),

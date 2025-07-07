@@ -499,51 +499,30 @@
   "policies": {
     "privacy": {
       "title": "นโยบายความเป็นส่วนตัว",
-      "introduction": {
-        "title": "บทนำ"
-      },
-      "dataCollection": {
-        "title": "ข้อมูลที่เราเก็บรวบรวมเกี่ยวกับคุณ"
-      },
-      "howWeUse": {
-        "title": "วิธีการใช้ข้อมูลส่วนบุคคลของคุณ"
-      },
-      "cookies": {
-        "title": "คุกกี้"
-      },
-      "thirdParty": {
-        "title": "ลิงก์ไปยังบุคคลที่สาม"
-      },
-      "dataRights": {
-        "title": "สิทธิการปกป้องข้อมูลของคุณ"
-      },
-      "contact": {
-        "title": "ติดต่อเรา"
-      }
+      "introduction": { "title": "บทนำ" },
+      "dataController": { "title": "ผู้ควบคุมข้อมูล" },
+      "dataCollection": { "title": "ข้อมูลที่เราเก็บรวบรวมเกี่ยวกับคุณ" },
+      "howWeUse": { "title": "วิธีการใช้ข้อมูลส่วนบุคคลของคุณ" },
+      "dataSharing": { "title": "การแบ่งปันข้อมูลและบุคคลที่สาม" },
+      "dataSecurity": { "title": "ความปลอดภัยของข้อมูล" },
+      "dataRetention": { "title": "การเก็บรักษาข้อมูล" },
+      "cookies": { "title": "คุกกี้และเทคโนโลยีการติดตาม" },
+      "international": { "title": "การโอนข้อมูลระหว่างประเทศ" },
+      "dataRights": { "title": "สิทธิการปกป้องข้อมูลของคุณ" },
+      "children": { "title": "ความเป็นส่วนตัวของเด็ก" },
+      "changes": { "title": "การเปลี่ยนแปลงนโยบายความเป็นส่วนตัว" },
+      "contact": { "title": "ติดต่อเรา" }
     },
-    "terms": {
-      "title": "ข้อตกลงการใช้งาน",
-      "introduction": {
-        "title": "บทนำ"
-      },
-      "license": {
-        "title": "ลิขสิทธิ์"
-      },
-      "userComments": {
-        "title": "ความคิดเห็นของผู้ใช้"
-      },
-      "hyperlinking": {
-        "title": "การเชื่อมโยงไปยังเนื้อหาของเรา"
-      },
-      "liability": {
-        "title": "ความรับผิดชอบ"
-      },
-      "changes": {
-        "title": "การเปลี่ยนแปลงข้อตกลง"
-      },
-      "contact": {
-        "title": "ติดต่อเรา"
-      }
+    "cookies": {
+      "title": "นโยบายคุกกี้",
+      "introduction": { "title": "บทนำ" },
+      "whatAreCookies": { "title": "คุกกี้คืออะไร?" },
+      "types": { "title": "ประเภทของคุกกี้ที่เราใช้" },
+      "specificCookies": { "title": "คุกกี้ที่เราใช้โดยเฉพาะ" },
+      "control": { "title": "วิธีควบคุมคุกกี้" },
+      "impact": { "title": "ผลกระทบของการปิดใช้งานคุกกี้" },
+      "updates": { "title": "การอัปเดตนโยบายคุกกี้นี้" },
+      "contact": { "title": "ติดต่อเรา" }
     }
   },
   "contactForm": {
