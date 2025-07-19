@@ -142,6 +142,50 @@
       fbq("track", "PageView");
     </script>
     <!-- End Meta Pixel Code -->
+
+    <!-- Custom styles for n8n chat widget -->
+    <style>
+      /* Override n8n chat widget styles */
+      :root {
+        --n8n-chat-primary-color: #051d40 !important;
+        --n8n-chat-secondary-color: #fbc646 !important;
+        --n8n-chat-text-color: #ffffff !important;
+        --n8n-chat-background-color: #ffffff !important;
+      }
+
+      /* Additional custom styles that will apply after the widget loads */
+      .chat-window-toggle {
+        background-color: #051d40 !important;
+        color: #fbc646 !important;
+      }
+
+      .chat-window-toggle svg {
+        fill: #fbc646 !important;
+      }
+
+      .n8n-chat-widget-header,
+      .non-chat div[class*="header"] {
+        background-color: #051d40 !important;
+      }
+
+      .n8n-chat-widget-user-message,
+      .non-chat div[class*="user-message"] {
+        background-color: #051d40 !important;
+        color: white !important;
+      }
+
+      .n8n-chat-widget-bot-message,
+      .non-chat div[class*="bot-message"] {
+        background-color: #f5f5f5 !important;
+        color: #333 !important;
+      }
+
+      .n8n-chat-widget-send-button,
+      .non-chat button[type="submit"] {
+        background-color: #051d40 !important;
+        color: #fbc646 !important;
+      }
+    </style>
   </head>
   <body>
     <!-- Facebook Pixel noscript -->
@@ -154,5 +198,37 @@
     /></noscript>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+
+    <!-- n8n Chat Widget -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css"
+      rel="stylesheet"
+    />
+    <script type="module">
+      import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
+
+      createChat({
+        webhookUrl:
+          "https://n8n.pawstreets.com/webhook/bae11d21-9d25-4be5-98e7-b8f49f5c9e86/chat",
+        initialMessages: [
+          "สวัสดีค่ะ 👋",
+          "พิมจาก WebsDee ยินดีให้บริการค่ะ",
+          "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
+        ],
+        i18n: {
+          en: {
+            title: "Hi there! 👋",
+            subtitle: "WebsDee is here to help you 24/7.",
+            inputPlaceholder: "Ask us anything.",
+          },
+          th: {
+            title: "สวัสดีค่ะ 👋",
+            subtitle: "WebsDee ยินดีให้บริการค่ะ",
+            inputPlaceholder:
+              "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
+          },
+        },
+      });
+    </script>
   </body>
 </html>

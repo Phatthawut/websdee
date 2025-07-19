@@ -28,7 +28,7 @@ onUnmounted(() => {
     <button
       v-show="showButton"
       @click="scrollToTop"
-      class="fixed bottom-8 right-8 bg-[#051d40] hover:bg-[#051d60] text-[#fbc646] rounded-full p-3 shadow-lg transition-all duration-300 z-50"
+      class="fixed bottom-24 right-8 bg-[#051d40] hover:bg-[#051d60] text-[#fbc646] rounded-full p-3 shadow-lg transition-all duration-300 z-50"
       aria-label="Scroll to top"
     >
       <svg

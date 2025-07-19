@@ -12,6 +12,7 @@
     "@emailjs/browser": "^4.4.1",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
+    "@n8n/chat": "^0.47.0",
     "@stripe/stripe-js": "^7.4.0",
     "@tailwindcss/vite": "^4.1.3",
     "@tiptap/extension-color": "^2.12.0",
