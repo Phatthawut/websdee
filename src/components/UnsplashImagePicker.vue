@@ -317,17 +317,10 @@ const searchPhotos = async () => {
     currentPage.value = 1;
     isSearchMode.value = true;
 
-    console.log("Searching for:", searchQuery.value.trim());
     const result = await unsplashService.searchPhotos(
       searchQuery.value.trim(),
       1,
       photosPerPage
-    );
-    console.log(
-      "Search results:",
-      result.results.length,
-      "total:",
-      result.total
     );
 
     // Update state and ensure reactivity
@@ -335,13 +328,6 @@ const searchPhotos = async () => {
     totalPhotos.value = result.total;
     hasMore.value = result.totalPages > 1;
     loading.value = false; // Set loading to false immediately
-
-    console.log(
-      "Search state updated - photos:",
-      photos.value.length,
-      "loading:",
-      loading.value
-    );
   } catch (err) {
     console.error("Error searching photos:", err);
     error.value = err.message || "Failed to search photos";
@@ -361,12 +347,10 @@ const loadFeaturedPhotos = async () => {
     currentPage.value = 1;
     isSearchMode.value = false;
 
-    console.log("Loading featured photos...");
     const featuredPhotos = await unsplashService.getFeaturedPhotos(
       1,
       photosPerPage
     );
-    console.log("Featured photos loaded:", featuredPhotos.length);
 
     // Update state in the correct order and ensure reactivity
     photos.value = [...featuredPhotos]; // Use spread to ensure reactivity
@@ -375,13 +359,6 @@ const loadFeaturedPhotos = async () => {
 
     // Force loading to false immediately after data is set
     loading.value = false;
-
-    console.log(
-      "State updated - photos:",
-      photos.value.length,
-      "loading:",
-      loading.value
-    );
   } catch (err) {
     console.error("Error loading featured photos:", err);
     error.value = err.message || "Failed to load featured photos";

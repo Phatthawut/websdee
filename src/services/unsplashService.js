@@ -32,8 +32,6 @@ class UnsplashService {
         query
       )}&page=${page}&per_page=${perPage}`;
 
-      secureLogger.logApiUrl("Searching Unsplash photos", url);
-
       const response = await fetch(url, {
         headers: {
           Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
@@ -49,12 +47,6 @@ class UnsplashService {
       const formattedPhotos = data.results.map((photo) =>
         this.formatPhoto(photo)
       );
-
-      secureLogger.log("Unsplash search completed", {
-        query,
-        count: formattedPhotos.length,
-        page,
-      });
 
       return {
         results: formattedPhotos,
@@ -79,10 +71,7 @@ class UnsplashService {
     }
 
     try {
-      secureLogger.log("Fetching featured photos from Unsplash API");
-
       const url = `${UNSPLASH_API_URL}/photos?page=${page}&per_page=${perPage}&order_by=popular`;
-      secureLogger.logApiUrl("API URL", url);
 
       const response = await fetch(url, {
         headers: {
@@ -91,17 +80,12 @@ class UnsplashService {
         },
       });
 
-      secureLogger.log("API Response status", { status: response.status });
-
       if (!response.ok) {
         throw new Error(`Unsplash API error: ${response.status}`);
       }
 
       const data = await response.json();
-      secureLogger.log("Raw API data received", { count: data.length });
-
       const formattedPhotos = data.map((photo) => this.formatPhoto(photo));
-      secureLogger.log("Formatted photos", { count: formattedPhotos.length });
 
       return formattedPhotos;
     } catch (error) {
