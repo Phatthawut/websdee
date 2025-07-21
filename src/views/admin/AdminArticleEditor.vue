@@ -1084,7 +1084,7 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
+<style>
 /* TipTap Editor Styles */
 .ProseMirror {
   outline: none;
@@ -1123,6 +1123,78 @@ onBeforeUnmount(() => {
 .ProseMirror h5,
 .ProseMirror h6 {
   font-size: 1.1rem;
+}
+
+/* Add proper bullet list and ordered list styles */
+.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 1rem 0 !important;
+}
+
+/* Style for nested lists */
+.ProseMirror ul ul {
+  list-style-type: circle !important;
+  margin-top: 0.5rem !important;
+}
+
+.ProseMirror ul ul ul {
+  list-style-type: square !important;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 1rem 0 !important;
+}
+
+/* Style for nested ordered lists */
+.ProseMirror ol ol {
+  list-style-type: lower-alpha !important;
+  margin-top: 0.5rem !important;
+}
+
+.ProseMirror ol ol ol {
+  list-style-type: lower-roman !important;
+}
+
+.ProseMirror li {
+  display: list-item !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ProseMirror ul li {
+  list-style-type: disc !important;
+}
+
+.ProseMirror ul ul li {
+  list-style-type: circle !important;
+}
+
+.ProseMirror ul ul ul li {
+  list-style-type: square !important;
+}
+
+.ProseMirror ol li {
+  list-style-type: decimal !important;
+}
+
+.ProseMirror ol ol li {
+  list-style-type: lower-alpha !important;
+}
+
+.ProseMirror ol ol ol li {
+  list-style-type: lower-roman !important;
+}
+
+.ProseMirror li p {
+  margin: 0;
+}
+
+.ProseMirror li > ul,
+.ProseMirror li > ol {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .ProseMirror code {
