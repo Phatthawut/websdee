@@ -207,28 +207,43 @@
     <script type="module">
       import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
-      createChat({
-        webhookUrl:
-          "https://n8n.pawstreets.com/webhook/bae11d21-9d25-4be5-98e7-b8f49f5c9e86/chat",
-        initialMessages: [
-          "สวัสดีค่ะ 👋",
-          "พิมจาก WebsDee ยินดีให้บริการค่ะ",
-          "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
-        ],
-        i18n: {
-          en: {
-            title: "Hi there! 👋",
-            subtitle: "WebsDee is here to help you 24/7.",
-            inputPlaceholder: "Ask us anything.",
+      // Only show chat widget if not in admin section
+      if (!window.location.pathname.includes("/admin")) {
+        createChat({
+          webhookUrl:
+            "https://n8n.pawstreets.com/webhook/bae11d21-9d25-4be5-98e7-b8f49f5c9e86/chat",
+          webhookConfig: {
+            method: "POST",
+            headers: {},
           },
-          th: {
-            title: "สวัสดีค่ะ 👋",
-            subtitle: "WebsDee ยินดีให้บริการค่ะ",
-            inputPlaceholder:
-              "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
+          target: "#n8n-chat",
+          mode: "window",
+          chatInputKey: "chatInput",
+          chatSessionKey: "sessionId",
+          loadPreviousSession: true,
+          metadata: {},
+          showWelcomeScreen: false,
+          defaultLanguage: "th",
+          initialMessages: [
+            "สวัสดีค่ะ 👋",
+            "พิมจาก WebsDee ยินดีให้บริการค่ะ",
+            "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
+          ],
+          i18n: {
+            en: {
+              title: "Hi there! 👋",
+              subtitle: "WebsDee is here to help you 24/7.",
+              inputPlaceholder: "Ask us anything.",
+            },
+            th: {
+              title: "สวัสดีค่ะ 👋",
+              subtitle: "WebsDee ยินดีให้บริการค่ะ",
+              inputPlaceholder:
+                "สนใจสอบถามเรื่องเว็บไซต์หรือบริการของเราได้เลยนะคะ 😊",
+            },
           },
-        },
-      });
+        });
+      }
     </script>
   </body>
 </html>

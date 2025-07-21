@@ -20,7 +20,7 @@ class UnsplashService {
    * @param {string} query - Search query
    * @param {number} page - Page number (default: 1)
    * @param {number} perPage - Number of photos per page (default: 12, max: 30)
-   * @returns {Promise<Array>} - Array of photos
+   * @returns {Promise<Object>} - Object containing results array and pagination info
    */
   async searchPhotos(query, page = 1, perPage = 12) {
     if (!UNSPLASH_ACCESS_KEY) {
@@ -56,7 +56,11 @@ class UnsplashService {
         page,
       });
 
-      return formattedPhotos;
+      return {
+        results: formattedPhotos,
+        total: data.total,
+        totalPages: Math.ceil(data.total / perPage),
+      };
     } catch (error) {
       secureLogger.error("Error searching Unsplash photos", error);
       throw error;
