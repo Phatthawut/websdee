@@ -325,6 +325,74 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div
+      v-if="toast.show"
+      class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg max-w-md transition-all duration-300"
+      :class="
+        toast.isError ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+      "
+    >
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg
+            v-if="!toast.isError"
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          <svg
+            v-else
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium">{{ toast.message }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+          <div class="-mx-1.5 -my-1.5">
+            <button
+              @click="toast.show = false"
+              class="inline-flex text-white hover:text-gray-100 focus:outline-none"
+            >
+              <span class="sr-only">Close</span>
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -349,6 +417,27 @@ const statusFilter = ref("");
 const categoryFilter = ref("");
 const articleToDelete = ref(null);
 const deleting = ref(false);
+
+// Add toast state
+const toast = ref({
+  show: false,
+  isError: false,
+  message: "",
+});
+
+// Add showToast function
+const showToast = (message, isError = false) => {
+  toast.value = {
+    show: true,
+    isError,
+    message,
+  };
+
+  // Auto-hide toast after 5 seconds
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 5000);
+};
 
 const filteredArticles = computed(() => {
   let filtered = articles.value;
@@ -394,7 +483,8 @@ const loadArticles = async () => {
       ...doc.data(),
     }));
   } catch (error) {
-    console.error("Error loading articles:", error);
+    // Error handling without console.error
+    loading.value = false;
   } finally {
     loading.value = false;
   }
@@ -449,9 +539,10 @@ const deleteArticle = async () => {
     );
 
     articleToDelete.value = null;
+    showToast("Article deleted successfully");
   } catch (error) {
-    console.error("Error deleting article:", error);
-    alert("Failed to delete article. Please try again.");
+    // Error handling without console.error
+    showToast("Failed to delete article. Please try again.", true);
   } finally {
     deleting.value = false;
   }

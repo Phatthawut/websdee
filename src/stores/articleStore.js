@@ -46,10 +46,8 @@ export const useArticleStore = defineStore("article", () => {
   const fetchArticles = async (limitCount = 10) => {
     loading.value = true;
     error.value = "";
-    console.log("Fetching articles from Firestore...");
 
     try {
-      console.log("Creating query for articles collection...");
       const articlesQuery = query(
         collection(db, "articles"),
         where("status", "==", "published"),
@@ -57,20 +55,16 @@ export const useArticleStore = defineStore("article", () => {
         limit(limitCount)
       );
 
-      console.log("Executing query...");
       const querySnapshot = await getDocs(articlesQuery);
-      console.log(`Query returned ${querySnapshot.size} documents`);
 
       const articlesList = [];
       querySnapshot.forEach((doc) => {
-        console.log(`Processing article document with ID: ${doc.id}`);
         articlesList.push({
           id: doc.id,
           ...doc.data(),
         });
       });
 
-      console.log(`Setting articles with ${articlesList.length} items`);
       articles.value = articlesList;
       loading.value = false;
       error.value = null;
@@ -89,7 +83,6 @@ export const useArticleStore = defineStore("article", () => {
   const readArticleById = async (id) => {
     loading.value = true;
     error.value = "";
-    console.log("Fetching article by ID from Firestore...");
 
     try {
       const articleRef = doc(db, "articles", id);
@@ -116,7 +109,6 @@ export const useArticleStore = defineStore("article", () => {
   const readArticleBySlug = async (slug) => {
     loading.value = true;
     error.value = "";
-    console.log("Fetching article by slug from Firestore...");
 
     try {
       const articleQuery = query(
@@ -158,7 +150,6 @@ export const useArticleStore = defineStore("article", () => {
   const fetchArticlesByCategory = async (category, limitCount = 10) => {
     loading.value = true;
     error.value = "";
-    console.log("Fetching articles by category from Firestore...");
 
     try {
       const articlesQuery = query(
@@ -194,7 +185,6 @@ export const useArticleStore = defineStore("article", () => {
   const updateArticle = async (articleId, updateData) => {
     loading.value = true;
     error.value = "";
-    console.log("Updating article in Firestore...");
 
     try {
       const articleRef = doc(db, "articles", articleId);
@@ -226,7 +216,6 @@ export const useArticleStore = defineStore("article", () => {
   const deleteArticle = async (articleId) => {
     loading.value = true;
     error.value = "";
-    console.log("Deleting article from Firestore...");
 
     try {
       const articleRef = doc(db, "articles", articleId);

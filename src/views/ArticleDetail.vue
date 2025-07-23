@@ -310,12 +310,10 @@ const relatedArticles = ref([]);
 // Load article from Firebase
 const loadArticle = async () => {
   try {
-    console.log("Loading article from Firebase...");
     const slug = route.params.slug;
     const foundArticle = await articleStore.readArticleBySlug(slug);
 
     if (foundArticle && foundArticle.length > 0) {
-      console.log("Article found in Firebase:", foundArticle);
       // Get related articles by category
       if (articleStore.currentArticle) {
         const related = await articleStore.fetchArticlesByCategory(

@@ -834,6 +834,74 @@
       @close="showUnsplashPicker = false"
       @select="onImageSelected"
     />
+
+    <!-- Toast Notification -->
+    <div
+      v-if="toast.show"
+      class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg max-w-md transition-all duration-300"
+      :class="
+        toast.isError ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+      "
+    >
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg
+            v-if="!toast.isError"
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          <svg
+            v-else
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium">{{ toast.message }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+          <div class="-mx-1.5 -my-1.5">
+            <button
+              @click="toast.show = false"
+              class="inline-flex text-white hover:text-gray-100 focus:outline-none"
+            >
+              <span class="sr-only">Close</span>
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -887,6 +955,27 @@ const article = ref({
   imageAttribution: "",
   unsplashId: "",
 });
+
+// Add toast state at the top of the script setup section after other refs
+const toast = ref({
+  show: false,
+  isError: false,
+  message: "",
+});
+
+// Add showToast function after other functions
+const showToast = (message, isError = false) => {
+  toast.value = {
+    show: true,
+    isError,
+    message,
+  };
+
+  // Auto-hide toast after 5 seconds
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 5000);
+};
 
 // TipTap Editors
 const editorEn = useEditor({
@@ -1008,12 +1097,12 @@ const loadArticle = async () => {
         editorTh.value.commands.setContent(data.content?.th || "");
       }
     } else {
-      alert("Article not found");
+      showToast("Article not found", true);
       router.push("/admin/articles");
     }
   } catch (error) {
-    console.error("Error loading article:", error);
-    alert("Failed to load article");
+    // Error handling without console.error
+    showToast("Failed to load article", true);
   }
 };
 
@@ -1053,18 +1142,18 @@ const saveArticle = async () => {
       // Update existing article
       const docRef = doc(db, "articles", route.params.id);
       await updateDoc(docRef, articleData);
-      alert("Article updated successfully!");
+      showToast("Article updated successfully!");
     } else {
       // Create new article
       articleData.createdAt = serverTimestamp();
       await addDoc(collection(db, "articles"), articleData);
-      alert("Article created successfully!");
+      showToast("Article created successfully!");
     }
 
     router.push("/admin/articles");
   } catch (error) {
-    console.error("Error saving article:", error);
-    alert("Failed to save article. Please try again.");
+    // Error handling without console.error
+    showToast("Failed to save article. Please try again.", true);
   } finally {
     saving.value = false;
   }
